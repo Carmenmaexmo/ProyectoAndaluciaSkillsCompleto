@@ -1,0 +1,8 @@
+/* filepath: /c:/Users/Carmen/Documents/DAW/2º/Servidor/servidor/Proyecto Andalucia Skills/frontend/src/app/app.component.scss */
+.content {
+    padding-top: 0;
+  
+    &.with-navbar {
+      padding-top: 56px; /* Ajusta este valor según la altura de tu navbar */
+    }
+  }

@@ -1,0 +1,26 @@
+
+<div class="container">
+    <h2>Lista de Participantes por especialidad con mayor puntuación</h2>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Apellidos</th>
+          <th>Centro</th>
+          <th>Especialidad</th>
+          <th>Prueba</th>
+          <th>Puntuación Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let participante of participantes">
+          <td>{{ participante.nombre }}</td>
+          <td>{{ participante.apellidos }}</td>
+          <td>{{ participante.centro }}</td>
+          <td>{{ participante.nombreEspecialidad }}</td>
+          <td>{{ participante.enunciadoPrueba }}</td>
+          <td>{{ participante.notaMaxima }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
