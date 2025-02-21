@@ -8,6 +8,7 @@ import com.example.backend.model.User;
 import com.example.backend.repository.UserRepository;
 import com.example.backend.repository.EspecialidadRepository;
 import com.example.backend.service.base.UserServiceBase;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -18,7 +19,6 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
 @Service
 public class UserService implements UserServiceBase, UserDetailsService {
 
@@ -53,30 +53,37 @@ public class UserService implements UserServiceBase, UserDetailsService {
             throw new IllegalArgumentException("Rol no válido");
         }
 
-        Especialidad especialidad = null;
-
-        // Si el rol no es ADMIN, verificamos si la especialidad existe
-        if (!"ADMIN".equalsIgnoreCase(userRegisterDTO.getRole())) {
-            especialidad = especialidadRepository.findById(userRegisterDTO.getEspecialidadId())
-                    .orElseThrow(() -> new RuntimeException("Especialidad no encontrada"));
-        } else {
-            // Si es ADMIN, asignamos la primera especialidad disponible
-            especialidad = especialidadRepository.findAll().stream().findFirst()
-                    .orElseThrow(() -> new RuntimeException("No hay especialidades disponibles"));
-        }
+        Especialidad especialidad = especialidadRepository.findById(userRegisterDTO.getEspecialidadId())
+                .orElseThrow(() -> new RuntimeException("Especialidad no encontrada"));
 
         // Convertir DTO a entidad
         User user = userMapper.toEntity(userRegisterDTO);
         user.setPassword(passwordEncoder.encode(user.getPassword())); // Encripta la contraseña
         user.setEspecialidad(especialidad); // Asignar especialidad al usuario
 
-        user.setRole(userRegisterDTO.getRole().toUpperCase()); // Asignar el rol al usuario
-        user.setUsername(userRegisterDTO.getUsername().toLowerCase()); // Asignar el nombre de usuario en minúsculas
-        user.setApellidos(userRegisterDTO.getApellidos().toLowerCase()); // Asignar los apellidos en minúsculas
-        user.setNombre(userRegisterDTO.getNombre().toLowerCase()); // Asignar el nombre en minúsculas
-        user.setDni(userRegisterDTO.getDni()); // Asignar el DNI
-
         // Guardar el usuario
+        user = userRepository.save(user);
+
+        return userMapper.toDTO(user);
+    }
+
+    @Override
+    public UserDTO actualizarUser(Integer id, UserRegisterDTO userRegisterDTO) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        // Actualizar los campos del usuario
+        user.setUsername(userRegisterDTO.getUsername());
+        user.setNombre(userRegisterDTO.getNombre());
+        user.setApellidos(userRegisterDTO.getApellidos());
+        user.setDni(userRegisterDTO.getDni());
+        user.setRole(userRegisterDTO.getRole());
+
+        Especialidad especialidad = especialidadRepository.findById(userRegisterDTO.getEspecialidadId())
+                .orElseThrow(() -> new RuntimeException("Especialidad no encontrada"));
+        user.setEspecialidad(especialidad);
+
+        // Guardar los cambios
         user = userRepository.save(user);
 
         return userMapper.toDTO(user);
@@ -98,5 +105,17 @@ public class UserService implements UserServiceBase, UserDetailsService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
         return user.getRole();
+    }
+
+    // Obtener el id de la especialidad del usuario
+    public Integer getUserEspecialidadId(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
+        return user.getEspecialidad().getIdEspecialidad();
+       
+    }
+
+    public List<UserDTO> obtenerUsuariosPorRol(String rol) {
+        return userMapper.toDTOs(userRepository.findByRole(rol));
     }
 }

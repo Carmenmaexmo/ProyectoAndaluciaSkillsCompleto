@@ -2,6 +2,8 @@ package com.example.backend.controller;
 
 import com.example.backend.dto.MejorNotaDTO;
 import com.example.backend.dto.ParticipanteDTO;
+import com.example.backend.dto.ParticipantePuntuacionProjection;
+import com.example.backend.model.Participante;
 import com.example.backend.service.ParticipanteService;
 
 import org.springframework.http.ResponseEntity;
@@ -43,5 +45,15 @@ public class ParticipanteController {
     @GetMapping("/mejor-nota")
     public ResponseEntity<List<MejorNotaDTO>> obtenerMejorNotaPorEspecialidad() {
         return ResponseEntity.ok(participanteService.obtenerMejorNotaPorEspecialidad());
+    }
+
+    @GetMapping("/especialidad/{especialidadId}/puntuaciones")
+    public List<ParticipantePuntuacionProjection> obtenerPuntuacionesPorEspecialidad(@PathVariable Integer especialidadId) {
+        return participanteService.obtenerPuntuacionesPorEspecialidad(especialidadId);
+    }
+
+    @GetMapping("/especialidad/{especialidadId}")
+    public List<Participante> obtenerParticipantesPorEspecialidad(@PathVariable Integer especialidadId) {
+        return participanteService.obtenerParticipantesPorEspecialidad(especialidadId);
     }
 }

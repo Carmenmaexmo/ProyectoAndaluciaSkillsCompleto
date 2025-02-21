@@ -1,0 +1,42 @@
+<div class="container mt-5">
+    <h2>Gestionar Participantes</h2>
+  
+    <form (ngSubmit)="agregarParticipante()">
+      <div class="mb-3">
+        <label class="form-label">Nombre</label>
+        <input type="text" class="form-control" [(ngModel)]="nuevoParticipante.nombre" name="nombre" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Apellidos</label>
+        <input type="text" class="form-control" [(ngModel)]="nuevoParticipante.apellidos" name="apellidos" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Centro</label>
+        <input type="text" class="form-control" [(ngModel)]="nuevoParticipante.centro" name="centro" required>
+      </div>
+      <button type="submit" class="btn btn-primary">Agregar Participante</button>
+    </form>
+  
+    <h3 class="mt-5">Lista de Participantes</h3>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Apellidos</th>
+          <th>Centro</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let participante of participantes">
+          <td>{{ participante.nombre }}</td>
+          <td>{{ participante.apellidos }}</td>
+          <td>{{ participante.centro }}</td>
+          <td>
+            <button class="btn btn-warning" (click)="editarParticipante(participante)">Editar</button>
+            <button class="btn btn-danger" (click)="eliminarParticipante(participante.idParticipante)">Eliminar</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>

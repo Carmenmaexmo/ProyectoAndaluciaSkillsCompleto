@@ -1,0 +1,31 @@
+<div class="container mt-5">
+    <h1 class="text-center mb-4">Lista de Participantes con su puntuación</h1>
+        <div class="table-responsive">
+        <table class="table table-striped table-bordered table-hover shadow-sm">
+            <thead class="table-dark text-center">
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Apellidos</th>
+                    <th>Enunciado Prueba</th>
+                    <th>Nota Final</th>
+                    <th>Suma Notas</th>
+                    <th>Suma Puntuación Máxima</th>
+                    <th>Puntuación Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let participante of participantes" class="text-center">
+                    <td>{{ participante.idParticipante }}</td>
+                    <td>{{ participante.nombre }}</td>
+                    <td>{{ participante.apellidos }}</td>
+                    <td>{{ participante.enunciadoPrueba }}</td>
+                    <td>{{ participante.notaFinal }}</td>
+                    <td>{{ participante.sumaNotas }}</td>
+                    <td>{{ participante.sumaPuntuacionMaxima }}</td>
+                    <td>{{ participante.puntuacionTotal }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

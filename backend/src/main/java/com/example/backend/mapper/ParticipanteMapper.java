@@ -52,4 +52,6 @@ public class ParticipanteMapper implements GenericMapper<Participante, Participa
                 .map(this::toEntity)
                 .collect(Collectors.toList());
     }
+
+    
 }

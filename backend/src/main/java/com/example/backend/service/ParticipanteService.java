@@ -2,6 +2,7 @@ package com.example.backend.service;
 
 import com.example.backend.dto.MejorNotaDTO;
 import com.example.backend.dto.ParticipanteDTO;
+import com.example.backend.dto.ParticipantePuntuacionProjection;
 import com.example.backend.mapper.ParticipanteMapper;
 import com.example.backend.model.Especialidad;
 import com.example.backend.model.Participante;
@@ -44,6 +45,12 @@ public class ParticipanteService implements ParticipanteServiceBase {
                 .map(participanteMapper::toDTO);
     }
 
+
+    //obtener participantes por especialidad
+    public List<Participante> obtenerParticipantesPorEspecialidad(Integer especialidadId) {
+        return participanteRepository.findByEspecialidad(especialidadId);
+    }
+
     @Override
     public ParticipanteDTO agregarParticipante(ParticipanteDTO participanteDTO) {
         Participante participante = participanteMapper.toEntity(participanteDTO);
@@ -57,5 +64,15 @@ public class ParticipanteService implements ParticipanteServiceBase {
     @Override
     public void eliminarParticipante(Integer id) {
         participanteRepository.deleteById(id);
+    }
+
+    @Override
+    public List<ParticipantePuntuacionProjection> obtenerPuntuacionesPorEspecialidad(Integer especialidadId) {
+        return participanteRepository.obtenerPuntuacionesPorEspecialidad(especialidadId);
+    }
+
+    @Override
+    public List<ParticipanteDTO> obtenerUsuariosPorRol(String rol) {
+        return ((ParticipanteServiceBase) participanteRepository).obtenerUsuariosPorRol(rol);
     }
 }

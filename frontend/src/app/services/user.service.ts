@@ -6,15 +6,27 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class UserService {
-  private apiUrl = 'http://localhost:8080/users'; // URL base del backend
+  private apiUrl = 'http://localhost:8080/users'; 
 
   constructor(private http: HttpClient) {}
 
-  obtenerExpertos(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/role/EXPERTO`);
+  obtenerUsuariosPorRol(rol: string): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}?role=${rol}`);
   }
 
-  eliminarExperto(id: number): Observable<void> {
+  obtenerUsuario(id: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/${id}`);
+  }
+
+  agregarUsuario(usuario: any): Observable<any> {
+    return this.http.post<any>(this.apiUrl, usuario);
+  }
+
+  actualizarUsuario(id: number, usuario: any): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/${id}`, usuario);
+  }
+
+  eliminarUsuario(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 }

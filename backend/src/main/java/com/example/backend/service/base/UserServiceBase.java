@@ -11,4 +11,5 @@ public interface UserServiceBase {
     Optional<UserDTO> obtenerPorId(Integer id);
     UserDTO agregarUser(UserRegisterDTO userRegisterDTO);
     void eliminarUser(Integer id);
+    UserDTO actualizarUser(Integer id, UserRegisterDTO userRegisterDTO);
 }

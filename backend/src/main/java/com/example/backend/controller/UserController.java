@@ -28,9 +28,20 @@ public class UserController {
         return userService.obtenerPorId(id);
     }
 
+    @GetMapping("/role/{rol}")
+    public List<UserDTO> obtenerUsuariosPorRol(@PathVariable String rol) {
+        return userService.obtenerUsuariosPorRol(rol);
+    }
+    
+
     @PostMapping
     public UserDTO agregar(@RequestBody UserRegisterDTO userRegisterDTO) {
         return userService.agregarUser(userRegisterDTO);
+    }
+
+    @PutMapping("/{id}")
+    public UserDTO actualizarUsuario(@PathVariable Integer id, @RequestBody UserRegisterDTO userRegisterDTO) {
+        return userService.actualizarUser(id, userRegisterDTO);
     }
 
     @DeleteMapping("/{id}")

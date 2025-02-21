@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { jwtDecode } from 'jwt-decode';
+import{ jwtDecode } from 'jwt-decode';
 
 @Injectable({
   providedIn: 'root'
@@ -41,7 +41,18 @@ export class AuthService {
       console.log('Token decodificado:', decodedToken);  // Agrega este mensaje de consola
       return decodedToken.role;  // 'role' es el nombre del campo en el JWT donde se almacena el rol
     }
-    return null;  // Si no hay token, devuelve null
+    return null;  
+  }
+
+  getEspecialidadFromToken(): string | null {
+    const token = localStorage.getItem('token');
+    if (token) {
+      const decodedToken: any = jwtDecode(token);  // Decodifica el token
+      console.log('Token decodificado:', decodedToken);  // Agrega este mensaje de consola
+      return decodedToken.especialidadId;  // 'role' es el nombre del campo en el JWT donde se almacena el rol
+
+    }
+    return null;  
   }
 
   // Método para verificar si el usuario está autenticado

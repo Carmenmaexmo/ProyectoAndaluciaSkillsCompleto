@@ -1,0 +1,63 @@
+<div class="container mt-5">
+    <h2>Gestionar Expertos</h2>
+    <button (click)="agregarExperto()" class="btn btn-success mb-3">Agregar Experto</button>
+    <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+    <div *ngIf="successMessage" class="alert alert-success">{{ successMessage }}</div>
+    <table class="table table-striped" *ngIf="!expertoSeleccionado">
+      <thead>
+        <tr>
+          <th>Nombre de Usuario</th>
+          <th>Nombre</th>
+          <th>Apellidos</th>
+          <th>DNI</th>
+          <th>Especialidad</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let experto of expertos">
+          <td>{{ experto.username }}</td>
+          <td>{{ experto.nombre || 'N/A' }}</td>
+          <td>{{ experto.apellidos || 'N/A' }}</td>
+          <td>{{ experto.dni || 'N/A' }}</td>
+          <td>{{ experto.especialidadNombre || 'N/A' }}</td>
+          <td>
+            <button (click)="editarExperto(experto)" class="btn btn-primary btn-sm">Editar</button>
+            <button (click)="eliminarExperto(experto.idUser)" class="btn btn-danger btn-sm">Eliminar</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  
+    <div *ngIf="expertoSeleccionado">
+      <h3>Editar Experto</h3>
+      <form (ngSubmit)="guardarCambios()">
+        <div class="mb-3">
+          <label class="form-label">Nombre de Usuario</label>
+          <input type="text" class="form-control" [(ngModel)]="expertoSeleccionado.username" name="username" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Nombre</label>
+          <input type="text" class="form-control" [(ngModel)]="expertoSeleccionado.nombre" name="nombre" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Apellidos</label>
+          <input type="text" class="form-control" [(ngModel)]="expertoSeleccionado.apellidos" name="apellidos" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">DNI</label>
+          <input type="text" class="form-control" [(ngModel)]="expertoSeleccionado.dni" name="dni" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Especialidad</label>
+          <select class="form-control" [(ngModel)]="expertoSeleccionado.especialidadId" name="especialidadId" required>
+            <option *ngFor="let especialidad of especialidades" [value]="especialidad.idEspecialidad">
+              {{ especialidad.nombre }}
+            </option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+        <button type="button" class="btn btn-secondary" (click)="cancelarEdicion()">Cancelar</button>
+      </form>
+    </div>
+  </div>

@@ -40,20 +40,39 @@ export class RegisterComponent implements OnInit {
 
   cargarEspecialidades() {
     this.especialidadService.obtenerEspecialidades().subscribe(data => {
-      this.especialidades = data;
+      console.log('🟢 Especialidades recibidas desde el backend:', data);
+  
+      if (!Array.isArray(data)) {
+        console.error("❌ ERROR: La respuesta no es un array. Verifica el backend.");
+        return;
+      }
+  
+      // Mapeamos los datos correctamente
+      this.especialidades = data.map(especialidad => ({
+        idEspecialidad: especialidad.id_especialidad, // Verificar que este campo llega desde el backend
+        nombre: especialidad.nombre,
+        codigo: especialidad.codigo
+      }));
+  
+      console.log('🔵 Especialidades procesadas para el frontend:', this.especialidades);
+    }, error => {
+      console.error('❌ Error al obtener especialidades:', error);
     });
   }
 
   onRegister() {
     this.errorMessage = '';  // Limpiar mensaje de error previo
     this.successMessage = ''; // Limpiar mensaje de éxito previo
+
+    console.log('Intentando registrar usuario con los siguientes datos:', this.user);
   
     // Realizamos la petición de registro al backend
     this.authService.register(this.user).subscribe(
+      
       (response: any) => {
         this.successMessage = response.message;
         setTimeout(() => {
-          this.router.navigate(['/login']);
+          this.router.navigate(['/admin/experto']); // Redirigir a gestionar expertos
         }, 2000);
       },
       (error: any) => {
