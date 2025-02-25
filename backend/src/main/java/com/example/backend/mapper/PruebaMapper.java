@@ -32,7 +32,6 @@ public class PruebaMapper implements GenericMapper<Prueba, PruebaDTO> {
         entity.setIdPrueba(dto.getIdPrueba());
         entity.setEnunciado(dto.getEnunciado());
         entity.setPuntuacionMaxima(dto.getPuntuacionMaxima());
-        // Aquí necesitarás obtener la entidad relacionada (Especialidad) desde su repositorio
         return entity;
     }
 

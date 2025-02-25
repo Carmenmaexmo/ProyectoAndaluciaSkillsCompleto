@@ -23,6 +23,15 @@ export interface ParticipanteDTO {
   especialidadId: number;
 }
 
+// Definir la interfaz para ParticipanteAddUpdateDTO
+export interface ParticipanteAddUpdateDTO {
+  id: number;
+  nombre: string;
+  apellidos: string;
+  centro: string;
+  especialidadId: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -43,12 +52,12 @@ export class ParticipanteService {
     return this.http.get<ParticipanteDTO[]>(`${this.apiUrl}/especialidad/${especialidadId}`);
   }
 
-  agregarParticipante(participante: ParticipanteDTO): Observable<ParticipanteDTO> {
+  agregarParticipante(participante: ParticipanteAddUpdateDTO): Observable<ParticipanteDTO> {
     return this.http.post<ParticipanteDTO>(this.apiUrl, participante);
   }
 
-  eliminarParticipante(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  eliminarParticipante(idParticipante: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${idParticipante}`);
   }
 
   actualizarParticipante(participante: ParticipanteDTO): Observable<ParticipanteDTO> {

@@ -64,5 +64,4 @@ public interface ParticipanteRepository extends JpaRepository<Participante, Inte
         """, nativeQuery = true)
     List<ParticipantePuntuacionProjection> obtenerPuntuacionesPorEspecialidad(Integer especialidadId);
 
-
 }

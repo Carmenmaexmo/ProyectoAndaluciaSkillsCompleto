@@ -25,7 +25,7 @@ public class Prueba {
     private Integer puntuacion_maxima;
 
     @ManyToOne
-    @JoinColumn(name = "Especialidad_idEspecialidad", nullable = false)
+    @JoinColumn(name = "Especialidad_id_Especialidad", nullable = false)
     @JsonIgnore
     private Especialidad especialidad;
 

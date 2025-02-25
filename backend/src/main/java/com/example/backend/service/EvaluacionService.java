@@ -1,10 +1,14 @@
 package com.example.backend.service;
 
 import com.example.backend.dto.EvaluacionDTO;
-import com.example.backend.mapper.EvaluacionMapper;
 import com.example.backend.model.Evaluacion;
+import com.example.backend.model.Participante;
+import com.example.backend.model.Prueba;
+import com.example.backend.model.User;
 import com.example.backend.repository.EvaluacionRepository;
-import com.example.backend.service.base.EvaluacionServiceBase;
+import com.example.backend.repository.ParticipanteRepository;
+import com.example.backend.repository.PruebaRepository;
+import com.example.backend.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,38 +16,75 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public class EvaluacionService implements EvaluacionServiceBase {
+public class EvaluacionService {
 
     private final EvaluacionRepository evaluacionRepository;
-    private final EvaluacionMapper evaluacionMapper;
+    private final ParticipanteRepository participanteRepository;
+    private final UserRepository userRepository;
+    private final PruebaRepository pruebaRepository;
 
-    public EvaluacionService(EvaluacionRepository evaluacionRepository, EvaluacionMapper evaluacionMapper) {
+    public EvaluacionService(EvaluacionRepository evaluacionRepository, ParticipanteRepository participanteRepository, UserRepository userRepository, PruebaRepository pruebaRepository) {
         this.evaluacionRepository = evaluacionRepository;
-        this.evaluacionMapper = evaluacionMapper;
+        this.participanteRepository = participanteRepository;
+        this.userRepository = userRepository;
+        this.pruebaRepository = pruebaRepository;
     }
 
-    @Override
     public List<EvaluacionDTO> obtenerTodas() {
-        return evaluacionRepository.findAll().stream()
-                .map(evaluacionMapper::toDTO)
-                .collect(Collectors.toList());
+        return evaluacionRepository.findAll().stream().map(this::convertirADTO).collect(Collectors.toList());
     }
 
-    @Override
     public Optional<EvaluacionDTO> obtenerPorId(Integer id) {
-        return evaluacionRepository.findById(id)
-                .map(evaluacionMapper::toDTO);
+        return evaluacionRepository.findById(id).map(this::convertirADTO);
     }
 
-    @Override
     public EvaluacionDTO agregarEvaluacion(EvaluacionDTO evaluacionDTO) {
-        Evaluacion evaluacion = evaluacionMapper.toEntity(evaluacionDTO);
-        Evaluacion evaluacionGuardada = evaluacionRepository.save(evaluacion);
-        return evaluacionMapper.toDTO(evaluacionGuardada);
+        Evaluacion evaluacion = convertirAEntidad(evaluacionDTO);
+        Evaluacion nuevaEvaluacion = evaluacionRepository.save(evaluacion);
+        return convertirADTO(nuevaEvaluacion);
     }
 
-    @Override
+    public EvaluacionDTO actualizarEvaluacion(Integer id, EvaluacionDTO evaluacionDTO) {
+        Evaluacion evaluacion = evaluacionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Evaluación no encontrada"));
+
+        evaluacion.setNotaFinal(evaluacionDTO.getNotaFinal());
+
+        Evaluacion evaluacionActualizada = evaluacionRepository.save(evaluacion);
+        return convertirADTO(evaluacionActualizada);
+    }
+
     public void eliminarEvaluacion(Integer id) {
         evaluacionRepository.deleteById(id);
+    }
+
+    private EvaluacionDTO convertirADTO(Evaluacion evaluacion) {
+        EvaluacionDTO dto = new EvaluacionDTO();
+        dto.setIdEvaluacion(evaluacion.getIdEvaluacion());
+        dto.setNotaFinal(evaluacion.getNotaFinal());
+        dto.setParticipanteId(evaluacion.getParticipante().getIdParticipante());
+        dto.setUsuarioId(evaluacion.getUsuario().getIdUser());
+        dto.setPruebaId(evaluacion.getPrueba().getIdPrueba());
+        return dto;
+    }
+
+    private Evaluacion convertirAEntidad(EvaluacionDTO dto) {
+        Evaluacion evaluacion = new Evaluacion();
+        evaluacion.setIdEvaluacion(dto.getIdEvaluacion());
+        evaluacion.setNotaFinal(dto.getNotaFinal());
+
+        Participante participante = participanteRepository.findById(dto.getParticipanteId())
+                .orElseThrow(() -> new RuntimeException("Participante no encontrado"));
+        evaluacion.setParticipante(participante);
+
+        User usuario = userRepository.findById(dto.getUsuarioId())
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        evaluacion.setUsuario(usuario);
+
+        Prueba prueba = pruebaRepository.findById(dto.getPruebaId())
+                .orElseThrow(() -> new RuntimeException("Prueba no encontrada"));
+        evaluacion.setPrueba(prueba);
+
+        return evaluacion;
     }
 }

@@ -39,13 +39,19 @@ public class JwtUtil {
         return extractExpiration(token).before(new Date());
     }
 
-    public String generateToken(UserDetails userDetails, String role, Integer especialidadId) {
+    public String generateToken(UserDetails userDetails, String role, Integer especialidadId, Integer userId) {
         Map<String, Object> claims = new HashMap<>();
         // Agregar el rol del usuario a las reclamaciones del token
         claims.put("role", role);
         // Agregar el id de la especialidad del usuario
         claims.put("especialidadId", especialidadId);
-       return createToken(claims, userDetails.getUsername());
+        // Agregar el id del usuario al token
+        claims.put("userId", userId);
+        
+        // Log para verificar que el userId se está incluyendo
+        System.out.println("Generando token con userId: " + userId);
+        
+        return createToken(claims, userDetails.getUsername());
     }
 
     private String createToken(Map<String, Object> claims, String subject) {

@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/evaluacionItems")
+@RequestMapping("/evaluacion-items")
 public class EvaluacionItemController {
 
     private final EvaluacionItemService evaluacionItemService;
@@ -32,9 +32,13 @@ public class EvaluacionItemController {
         return evaluacionItemService.agregarEvaluacionItem(evaluacionItemDTO);
     }
 
+    @PutMapping("/{id}")
+    public EvaluacionItemDTO actualizar(@PathVariable Integer id, @RequestBody EvaluacionItemDTO evaluacionItemDTO) {
+        return evaluacionItemService.actualizarEvaluacionItem(id, evaluacionItemDTO);
+    }
+
     @DeleteMapping("/{id}")
     public void eliminar(@PathVariable Integer id) {
         evaluacionItemService.eliminarEvaluacionItem(id);
     }
 }
-

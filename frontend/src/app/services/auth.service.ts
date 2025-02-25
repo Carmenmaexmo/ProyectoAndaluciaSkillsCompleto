@@ -49,8 +49,17 @@ export class AuthService {
     if (token) {
       const decodedToken: any = jwtDecode(token);  // Decodifica el token
       console.log('Token decodificado:', decodedToken);  // Agrega este mensaje de consola
-      return decodedToken.especialidadId;  // 'role' es el nombre del campo en el JWT donde se almacena el rol
+      return decodedToken.especialidadId;
+    }
+    return null;  
+  }
 
+  getUsuarioIdFromToken(): string | null {
+    const token = localStorage.getItem('token');
+    if (token) {
+      const decodedToken: any = jwtDecode(token);  // Decodifica el token
+      console.log('Token decodificado:', decodedToken);  // Agrega este mensaje de consola
+      return decodedToken.userId;
     }
     return null;  
   }

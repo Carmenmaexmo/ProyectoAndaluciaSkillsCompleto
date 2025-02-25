@@ -10,6 +10,7 @@ public interface UserServiceBase {
     List<UserDTO> obtenerTodos();
     Optional<UserDTO> obtenerPorId(Integer id);
     UserDTO agregarUser(UserRegisterDTO userRegisterDTO);
+    Integer getUserIdByUsername(String username);
     void eliminarUser(Integer id);
     UserDTO actualizarUser(Integer id, UserRegisterDTO userRegisterDTO);
 }

@@ -35,24 +35,5 @@ public class Especialidad {
     @OneToMany(mappedBy = "especialidad")
     @JsonIgnore
     private List<User> users;
-
-    // Getters y Setters
-    public Integer getIdEspecialidad() { return idEspecialidad; }
-    public void setIdEspecialidad(Integer idEspecialidad) { this.idEspecialidad = idEspecialidad; }
-
-    public String getNombre() { return nombre; }
-    public void setNombre(String nombre) { this.nombre = nombre; }
-
-    public String getCodigo() { return codigo; }
-    public void setCodigo(String codigo) { this.codigo = codigo; }
-
-    public List<Participante> getParticipantes() { return participantes; }
-    public void setParticipantes(List<Participante> participantes) { this.participantes = participantes; }
-
-    public List<Prueba> getPruebas() { return pruebas; }
-    public void setPruebas(List<Prueba> pruebas) { this.pruebas = pruebas; }
-
-    public List<User> getUsers() { return users; }
-    public void setUsers(List<User> users) { this.users = users; }
    
 }

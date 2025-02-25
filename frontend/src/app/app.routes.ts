@@ -9,6 +9,7 @@ import { RegisterComponent } from './pages/register/register.component';
 import { GestionarExpertosComponent } from './components/admin/gestionar-expertos/gestionar-expertos.component';
 import { ListarParticipantesComponent } from './components/experto/listar-participantes/listar-participantes.component';
 import { GestionarParticipantesComponent } from './components/experto/gestionar-participantes/gestionar-participantes.component';
+import { GestionarPuntuacionesComponent } from './components/experto/gestionar-puntuaciones/gestionar-puntuaciones.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -28,7 +29,8 @@ export const routes: Routes = [
     children: [
       { path: '', redirectTo: 'participantes', pathMatch: 'full' },
       { path: 'participantes', component: ListarParticipantesComponent },
-      { path: 'gestionar-participantes', component: GestionarParticipantesComponent }
+      { path: 'gestionar-participantes', component: GestionarParticipantesComponent },
+      { path: 'gestionar-puntuaciones', component: GestionarPuntuacionesComponent }
     ]
   }
 ];

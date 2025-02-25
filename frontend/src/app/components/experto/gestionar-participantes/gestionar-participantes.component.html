@@ -1,6 +1,11 @@
 <div class="container mt-5">
     <h2>Gestionar Participantes</h2>
   
+    <!-- Mostrar mensaje -->
+    <div *ngIf="mensaje" [ngClass]="{'alert-success': mensajeTipo === 'success', 'alert-danger': mensajeTipo === 'error'}" class="alert">
+      {{ mensaje }}
+    </div>
+  
     <form (ngSubmit)="agregarParticipante()">
       <div class="mb-3">
         <label class="form-label">Nombre</label>
@@ -18,25 +23,48 @@
     </form>
   
     <h3 class="mt-5">Lista de Participantes</h3>
-    <table class="table">
-      <thead>
-        <tr>
-          <th>Nombre</th>
-          <th>Apellidos</th>
-          <th>Centro</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let participante of participantes">
-          <td>{{ participante.nombre }}</td>
-          <td>{{ participante.apellidos }}</td>
-          <td>{{ participante.centro }}</td>
-          <td>
-            <button class="btn btn-warning" (click)="editarParticipante(participante)">Editar</button>
-            <button class="btn btn-danger" (click)="eliminarParticipante(participante.idParticipante)">Eliminar</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+    <div class="table-responsive">
+      <table class="table table-striped table-bordered table-hover shadow-sm">
+        <thead class="table-dark text-center">
+          <tr>
+            <th>Nombre</th>
+            <th>Apellidos</th>
+            <th>Centro</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let participante of participantes" class="text-center">
+            <td>{{ participante.nombre }}</td>
+            <td>{{ participante.apellidos }}</td>
+            <td>{{ participante.centro }}</td>
+            <td>
+              <button class="btn btn-warning" (click)="participanteEditando = participante">Editar</button>
+              <button class="btn btn-danger" (click)="eliminarParticipante(participante.idParticipante)">Eliminar</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  
+    <!-- Formulario de actualización -->
+    <div *ngIf="participanteEditando">
+      <h3 class="mt-5">Actualizar Participante</h3>
+      <form (ngSubmit)="actualizarParticipante(participanteEditando)">
+        <div class="mb-3">
+          <label class="form-label">Nombre</label>
+          <input type="text" class="form-control" [(ngModel)]="participanteEditando.nombre" name="nombre" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Apellidos</label>
+          <input type="text" class="form-control" [(ngModel)]="participanteEditando.apellidos" name="apellidos" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Centro</label>
+          <input type="text" class="form-control" [(ngModel)]="participanteEditando.centro" name="centro" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Actualizar Participante</button>
+        <button type="button" class="btn btn-secondary" (click)="cancelarEdicion()">Cancelar</button>
+      </form>
+    </div>
+</div>

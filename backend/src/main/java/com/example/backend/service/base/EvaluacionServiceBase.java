@@ -7,6 +7,7 @@ import java.util.Optional;
 public interface EvaluacionServiceBase {
     List<EvaluacionDTO> obtenerTodas();
     Optional<EvaluacionDTO> obtenerPorId(Integer id);
+    EvaluacionDTO actualizarEvaluacion(Integer id, EvaluacionDTO evaluacionDTO);
     EvaluacionDTO agregarEvaluacion(EvaluacionDTO evaluacionDTO);
     void eliminarEvaluacion(Integer id);
 }

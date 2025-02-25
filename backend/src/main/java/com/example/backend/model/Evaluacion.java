@@ -23,21 +23,17 @@ public class Evaluacion {
 
     // Relación con Participante
     @ManyToOne
-    @JoinColumn(name = "Participante_idParticipante", nullable = false)
-    @JsonIgnore
+    @JoinColumn(name = "participante_id_participante", nullable = false)
     private Participante participante;
 
     // Relación con Usuario (Evaluador)
     @ManyToOne
-    @JoinColumn(name = "User_idUser", nullable = false)
-    @JsonIgnore
+    @JoinColumn(name = "user_id_user", nullable = false)
     private User usuario;
 
     // Relación con Prueba
     @ManyToOne
-    @JsonIgnore
-    @JoinColumn(name = "Prueba_idPrueba", nullable = false)
-    
+    @JoinColumn(name = "prueba_id_prueba", nullable = false)
     private Prueba prueba;
 
     // Relación con EvaluacionItem
@@ -55,8 +51,8 @@ public class Evaluacion {
     public Participante getParticipante() { return participante; }
     public void setParticipante(Participante participante) { this.participante = participante; }
 
-    public User getEvaluador() { return usuario; }
-    public void setEvaluador(User usuario) { this.usuario = usuario; }
+    public User getUsuario() { return usuario; }
+    public void setUsuario(User usuario) { this.usuario = usuario; }
 
     public Prueba getPrueba() { return prueba; }
     public void setPrueba(Prueba prueba) { this.prueba = prueba; }

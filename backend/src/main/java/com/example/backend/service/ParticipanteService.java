@@ -75,4 +75,18 @@ public class ParticipanteService implements ParticipanteServiceBase {
     public List<ParticipanteDTO> obtenerUsuariosPorRol(String rol) {
         return ((ParticipanteServiceBase) participanteRepository).obtenerUsuariosPorRol(rol);
     }
+
+    public ParticipanteDTO actualizarParticipante(Integer id, ParticipanteDTO participanteDTO) {
+        Participante participante = participanteRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Participante no encontrado"));
+        participante.setNombre(participanteDTO.getNombre());
+        participante.setApellidos(participanteDTO.getApellidos());
+        participante.setCentro(participanteDTO.getCentro());
+        Especialidad especialidad = especialidadRepository.findById(participanteDTO.getEspecialidadId())
+                .orElseThrow(() -> new RuntimeException("Especialidad no encontrada"));
+        participante.setEspecialidad(especialidad);
+        Participante participanteActualizado = participanteRepository.save(participante);
+        return participanteMapper.toDTO(participanteActualizado);
+    }
+
 }

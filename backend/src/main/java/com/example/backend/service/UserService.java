@@ -118,4 +118,12 @@ public class UserService implements UserServiceBase, UserDetailsService {
     public List<UserDTO> obtenerUsuariosPorRol(String rol) {
         return userMapper.toDTOs(userRepository.findByRole(rol));
     }
+
+    public Integer getUserIdByUsername(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
+        return user.getIdUser();
+    }
+
+    
 }

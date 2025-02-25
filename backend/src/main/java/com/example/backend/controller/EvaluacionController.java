@@ -1,4 +1,4 @@
-package com.example.backend.controller; // filepath: /c:/Users/Carmen/Documents/DAW/2º/Servidor/servidor/ProyectoAndaluciaSkills/Backend/andaluciaskills/src/main/java/com/example/andaluciaskills/controller/EvaluacionController.java
+package com.example.backend.controller;
 
 import com.example.backend.dto.EvaluacionDTO;
 import com.example.backend.service.EvaluacionService;

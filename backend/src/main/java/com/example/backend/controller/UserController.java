@@ -32,7 +32,11 @@ public class UserController {
     public List<UserDTO> obtenerUsuariosPorRol(@PathVariable String rol) {
         return userService.obtenerUsuariosPorRol(rol);
     }
-    
+
+    @GetMapping("/username/{username}")
+    public Integer getUserIdByUsername(@PathVariable String username) {
+        return userService.getUserIdByUsername(username);
+    }
 
     @PostMapping
     public UserDTO agregar(@RequestBody UserRegisterDTO userRegisterDTO) {

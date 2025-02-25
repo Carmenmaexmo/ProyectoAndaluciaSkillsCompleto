@@ -17,4 +17,7 @@ public interface EvaluacionRepository extends JpaRepository<Evaluacion, Integer>
     //Buscar evaluaciones de un usuario (experto)
     @Query("SELECT e FROM Evaluacion e WHERE e.usuario.idUser = :userId")
     List<Evaluacion> findByUsuario(Integer userId);
+
+    
+
 }

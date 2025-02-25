@@ -65,7 +65,12 @@ public class AuthController {
         final UserDetails userDetails = userService.loadUserByUsername(userLoginDTO.getUsername());
         final String role = userService.getUserRole(userLoginDTO.getUsername());
         final Integer especialidadId = userService.getUserEspecialidadId(userLoginDTO.getUsername());
-        final String jwt = jwtUtil.generateToken(userDetails, role, especialidadId);
+        final Integer userId = userService.getUserIdByUsername(userLoginDTO.getUsername());
+        
+        // Log para verificar que el userId se está obteniendo correctamente
+        System.out.println("Obtenido userId: " + userId);
+        
+        final String jwt = jwtUtil.generateToken(userDetails, role, especialidadId, userId);
 
         Map<String, String> response = new HashMap<>();
         response.put("token", jwt);

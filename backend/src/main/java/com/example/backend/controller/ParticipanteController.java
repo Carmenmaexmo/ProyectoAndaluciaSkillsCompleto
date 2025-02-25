@@ -37,6 +37,12 @@ public class ParticipanteController {
         return participanteService.agregarParticipante(participanteDTO);
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<ParticipanteDTO> actualizar(@PathVariable Integer id, @RequestBody ParticipanteDTO participanteDTO) {
+        ParticipanteDTO actualizado = participanteService.actualizarParticipante(id, participanteDTO);
+        return ResponseEntity.ok(actualizado);
+    }
+
     @DeleteMapping("/{id}")
     public void eliminar(@PathVariable Integer id) {
         participanteService.eliminarParticipante(id);
@@ -56,4 +62,6 @@ public class ParticipanteController {
     public List<Participante> obtenerParticipantesPorEspecialidad(@PathVariable Integer especialidadId) {
         return participanteService.obtenerParticipantesPorEspecialidad(especialidadId);
     }
+
+
 }

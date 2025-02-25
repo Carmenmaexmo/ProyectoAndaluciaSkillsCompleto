@@ -1,8 +1,6 @@
 package com.example.backend.model;
 
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,25 +19,11 @@ public class EvaluacionItem {
     private Integer valoracion;
 
     @ManyToOne
-    @JoinColumn(name = "Evaluacion_idEvaluacion", nullable = false)
-     @JsonIgnore
+    @JoinColumn(name = "evaluacion_id_evaluacion", nullable = false)
     private Evaluacion evaluacion;
 
     @ManyToOne
-    @JoinColumn(name = "Item_idItem", nullable = false)
-    @JsonIgnore
+    @JoinColumn(name = "item_id_item", nullable = false)
     private Item item;
 
-    // Getters y Setters
-    public Integer getIdEvaluacionItem() { return idEvaluacionItem; }
-    public void setIdEvaluacionItem(Integer idEvaluacionItem) { this.idEvaluacionItem = idEvaluacionItem; }
-
-    public Integer getValoracion() { return valoracion; }
-    public void setValoracion(Integer valoracion) { this.valoracion = valoracion; }
-
-    public Evaluacion getEvaluacion() { return evaluacion; }
-    public void setEvaluacion(Evaluacion evaluacion) { this.evaluacion = evaluacion; }
-
-    public Item getItem() { return item; }
-    public void setItem(Item item) { this.item = item; }
 }
