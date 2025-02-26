@@ -15,9 +15,9 @@ export class GestionarParticipantesComponent implements OnInit {
   participantes: ParticipanteDTO[] = [];
   nuevoParticipante: ParticipanteAddUpdateDTO = { id: 0, nombre: '', apellidos: '', centro: '', especialidadId: 0 };
   participanteEditando: ParticipanteDTO | null = null;
-  mensaje: string = '';  // Variable para almacenar el mensaje
-  mensajeTipo: string = '';  // Variable para almacenar el tipo de mensaje ('success' o 'error')
-  especialidadId: number | null = null;  // Variable para almacenar el especialidadId del usuario logueado
+  mensaje: string = '';  
+  mensajeTipo: string = '';  
+  especialidadId: number | null = null;  
 
   constructor(
     private participanteService: ParticipanteService,
@@ -25,17 +25,16 @@ export class GestionarParticipantesComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    const especialidadIdStr = this.authService.getEspecialidadFromToken();  // Obtén el especialidadId del token como cadena
+    const especialidadIdStr = this.authService.getEspecialidadFromToken();  
     if (especialidadIdStr !== null) {
-      this.especialidadId = Number(especialidadIdStr);  // Convierte el especialidadId a número
+      this.especialidadId = Number(especialidadIdStr);
       if (!isNaN(this.especialidadId)) {
         this.participanteService.obtenerParticipantesPorEspecialidad(this.especialidadId).subscribe(
           (data: ParticipanteDTO[]) => {
             this.participantes = data.map(participante => ({
               ...participante,
-              especialidadId: participante.especialidadId || 0 // Asegúrate de que especialidadId no sea undefined
+              especialidadId: participante.especialidadId || 0
             }));
-            console.log('Participantes:', this.participantes);
           },
           (error) => {
             console.error('Error fetching participantes:', error);
@@ -49,22 +48,45 @@ export class GestionarParticipantesComponent implements OnInit {
     }
   }
 
+  // VALIDACIONES COMUNES
+  private validarDatos(nombre: string, apellidos: string, centro: string): boolean {
+    const soloLetrasRegex = /^[A-Za-zÁáÉéÍíÓóÚúÑñ\s]+$/;
+    const apellidosRegex = /^[A-Za-zÁáÉéÍíÓóÚúÑñ]+\s[A-Za-zÁáÉéÍíÓóÚúÑñ]+$/;
+
+    if (!soloLetrasRegex.test(nombre.trim())) {
+      this.mostrarMensaje('El nombre solo debe contener letras.', 'error');
+      return false;
+    }
+
+    if (!apellidosRegex.test(apellidos.trim())) {
+      this.mostrarMensaje('Debe poner dos apellidos.', 'error');
+      return false;
+    }
+
+    if (!soloLetrasRegex.test(centro.trim())) {
+      this.mostrarMensaje('El centro solo debe contener letras.', 'error');
+      return false;
+    }
+
+    return true;
+  }
+
   agregarParticipante(): void {
+    if (!this.validarDatos(this.nuevoParticipante.nombre, this.nuevoParticipante.apellidos, this.nuevoParticipante.centro)) {
+      return;
+    }
+
     if (this.especialidadId !== null) {
       this.nuevoParticipante.especialidadId = this.especialidadId;
       this.participanteService.agregarParticipante(this.nuevoParticipante).subscribe(
         (participante: ParticipanteDTO) => {
           this.participantes.push(participante);
           this.nuevoParticipante = { id: 0, nombre: '', apellidos: '', centro: '', especialidadId: 0 };
-          this.mensaje = 'Participante agregado exitosamente';
-          this.mensajeTipo = 'success';
-          this.ocultarMensaje();
+          this.mostrarMensaje('Participante agregado exitosamente', 'success');
         },
         (error) => {
           console.error('Error adding participante:', error);
-          this.mensaje = 'Error al agregar el participante';
-          this.mensajeTipo = 'error';
-          this.ocultarMensaje();
+          this.mostrarMensaje('Error al agregar el participante', 'error');
         }
       );
     }
@@ -74,49 +96,43 @@ export class GestionarParticipantesComponent implements OnInit {
     this.participanteService.eliminarParticipante(idParticipante).subscribe(
       () => {
         this.participantes = this.participantes.filter(p => p.idParticipante !== idParticipante);
-        this.mensaje = 'Participante eliminado exitosamente';
-        this.mensajeTipo = 'success';
-        this.ocultarMensaje();
+        this.mostrarMensaje('Participante eliminado exitosamente', 'success');
       },
       (error) => {
         console.error('Error deleting participante:', error);
-        this.mensaje = 'No se ha podido eliminar el participante ya que tiene relaciones con otras tablas';
-        this.mensajeTipo = 'error';
-        this.ocultarMensaje();
+        this.mostrarMensaje('No se ha podido eliminar el participante ya que tiene relaciones con otras tablas', 'error');
       }
     );
   }
 
   actualizarParticipante(participante: ParticipanteDTO): void {
-    const especialidadIdStr = this.authService.getEspecialidadFromToken();  // Obtén el especialidadId del token como cadena
-    const especialidadId = Number(especialidadIdStr);  // Usa el especialidadId del token
+    if (!this.validarDatos(participante.nombre, participante.apellidos, participante.centro)) {
+      return;
+    }
 
-    console.log('especialidadId del token:', especialidadId);  // Verifica el valor del especialidadId
+    const especialidadIdStr = this.authService.getEspecialidadFromToken();  
+    const especialidadId = Number(especialidadIdStr);  
 
     const participanteUpdate: ParticipanteDTO = {
       idParticipante: participante.idParticipante,
       nombre: participante.nombre,
       apellidos: participante.apellidos,
       centro: participante.centro,
-      especialidadId: especialidadId // Usar el especialidadId del token
+      especialidadId: especialidadId
     };
-    console.log('Participante actualizando:', participanteUpdate);
+
     this.participanteService.actualizarParticipante(participanteUpdate).subscribe(
       (updatedParticipante: ParticipanteDTO) => {
         const index = this.participantes.findIndex(p => p.idParticipante === updatedParticipante.idParticipante);
         if (index !== -1) {
           this.participantes[index] = updatedParticipante;
-          this.mensaje = 'Participante actualizado exitosamente';
-          this.mensajeTipo = 'success';
+          this.mostrarMensaje('Participante actualizado exitosamente', 'success');
           this.participanteEditando = null;
-          this.ocultarMensaje();
         }
       },
       (error) => {
         console.error('Error updating participante:', error);
-        this.mensaje = 'Error al actualizar el participante';
-        this.mensajeTipo = 'error';
-        this.ocultarMensaje();
+        this.mostrarMensaje('Error al actualizar el participante', 'error');
       }
     );
   }
@@ -125,12 +141,13 @@ export class GestionarParticipantesComponent implements OnInit {
     this.participanteEditando = null;
   }
 
-  private ocultarMensaje(): void {
-    console.log('Ocultando mensaje en 3 segundos');
+  private mostrarMensaje(texto: string, tipo: string): void {
+    this.mensaje = texto;
+    this.mensajeTipo = tipo;
+    console.log(`Mensaje: ${texto} | Tipo: ${tipo}`);
     setTimeout(() => {
-      console.log('Mensaje ocultado');
       this.mensaje = '';
       this.mensajeTipo = '';
-    }, 3000);  // Ocultar el mensaje después de 3 segundos
+    }, 3000);
   }
 }

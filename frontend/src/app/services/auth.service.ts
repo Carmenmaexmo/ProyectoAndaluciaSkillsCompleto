@@ -69,4 +69,9 @@ export class AuthService {
     const token = localStorage.getItem('token');
     return !!token;  // Devuelve true si hay un token, false si no
   }
+
+  verificarUsername(username: string): Observable<boolean> {
+    return this.http.get<boolean>(`${this.apiUrl}/usuarios/existe/${username}`);
+  }
+  
 }

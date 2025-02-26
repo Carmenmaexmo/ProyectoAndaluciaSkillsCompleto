@@ -3,7 +3,7 @@ import { PruebaService, PruebaItemsEvaluacionDTO, CrearPruebaDTO, PruebaDTO } fr
 import { ItemService, ItemDTO, CrearItemDTO } from '../../../services/item.service';  // Asegúrate de importar ItemService
 import { ParticipanteService, ParticipanteDTO } from '../../../services/participante.service';
 import { EvaluacionItemService, EvaluacionItemDTO, EvaluacionItemResponseDTO } from '../../../services/evaluacion-item.service';
-import { EvaluacionService, EvaluacionDTO, EvaluacionResponseDTO } from '../../../services/evaluacion.service';
+import { EvaluacionService, EvaluacionDTO, EvaluacionResponseDTO, PruebaSimpleDTO } from '../../../services/evaluacion.service';
 import { AuthService } from '../../../services/auth.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -17,6 +17,7 @@ import { FormsModule } from '@angular/forms';
 export class GestionarPuntuacionesComponent implements OnInit {
   pruebasPorEspecialidadItems: PruebaItemsEvaluacionDTO[] = [];
   pruebasPorEspecialidad: PruebaDTO[] = [];
+  pruebasPorEspecialidadEdit: PruebaSimpleDTO[] = [];
   pruebas: CrearPruebaDTO[] = [];
   items: ItemDTO[] = [];  // Lista de ítems creados
   participantes: ParticipanteDTO[] = [];
@@ -30,7 +31,7 @@ export class GestionarPuntuacionesComponent implements OnInit {
   selectedPruebaIdEdit: number = 0;
   selectedItemsEdit: { item: ItemDTO, valoracion: number }[] = []; // Ítems para edición
   evaluacionItemsEditando: EvaluacionItemResponseDTO[] = [];  
-  evaluacionEditando: EvaluacionResponseDTO | null = null;
+  evaluacionEditando: EvaluacionResponseDTO | null = null;  // Evaluación para edición
 
   // Mensaje que se mostrará al usuario
   mensaje: string = '';
@@ -65,9 +66,12 @@ export class GestionarPuntuacionesComponent implements OnInit {
           this.pruebasPorEspecialidad = data;
         });
         this.participanteService.obtenerParticipantesPorEspecialidad(especialidadId).subscribe(data => {
-          this.participantes = data;
+          this.participantes = data.map(participante => ({
+            ...participante,
+            nombreCompleto: `${participante.nombre} ${participante.apellidos}`
+          }));
           console.log('Participantes:', this.participantes);
-        });
+        });   
         this.itemService.obtenerItems().subscribe(data => {
           this.items = data;  // Obtener todos los ítems disponibles
         });
@@ -222,45 +226,57 @@ guardarEvaluacion(): void {
   });
 }
 
-// Función para cargar la evaluación que se va a editar
-editarEvaluacion(idEvaluacion: number): void {
-  // Llamada al servicio para obtener la evaluación con los ítems y valoraciones
-  this.evaluacionService.obtenerporid(idEvaluacion).subscribe(evaluacion => {
-    this.evaluacionEditando = evaluacion;  // Asignar la evaluación obtenida a evaluacionEditando
-    this.selectedParticipanteIdEdit = evaluacion.idParticipante;
-    this.selectedPruebaIdEdit = evaluacion.idPrueba;
-
-    // Cargar los ítems seleccionados y sus valoraciones
-    this.selectedItemsEdit = evaluacion.items.map(itemEvaluacion => ({
-      item: this.items.find(item => item.idItem === itemEvaluacion.itemId)!,  // Asumiendo que ya tienes la lista de ítems
-      valoracion: itemEvaluacion.valoracion
-    }));
-
-    // Asignar los ítems de la evaluación a evaluacionItemsEditando
-    this.evaluacionItemsEditando = evaluacion.items;
-
-    this.mostrarFormularioEdicion = true;  // Mostrar el formulario de edición
-  });
-}
-
-// Función para seleccionar/deseleccionar ítems en la edición
-seleccionarItemEditar(item: ItemDTO, event: any): void {
-  if (event.target.checked) {
-    // Si se selecciona, agregarlo con su valoracion actual
-    if (!this.selectedItemsEdit.find(i => i.item.idItem === item.idItem)) {
-      const valoracion = this.selectedItemsEdit.find(i => i.item.idItem === item.idItem)?.valoracion || 0;
-      this.selectedItemsEdit.push({ item, valoracion });
-    }
+// Función para manejar la selección de participante en la edición
+onSeleccionarParticipante(): void {
+  if (this.selectedParticipanteIdEdit) {
+    this.evaluacionService.obtenerPruebasPorParticipante(this.selectedParticipanteIdEdit).subscribe(pruebas => {
+      this.pruebasPorEspecialidadEdit = pruebas;
+      console.log('Pruebas obtenidas para el participante:', this.pruebasPorEspecialidadEdit);
+    });
   } else {
-    // Si se deselecciona, eliminarlo de la lista
-    this.selectedItemsEdit = this.selectedItemsEdit.filter(i => i.item.idItem !== item.idItem);
+    console.error('Debe seleccionar un participante.');
   }
 }
 
-// Función para verificar si el ítem está seleccionado
-isItemSelected(item: ItemDTO): boolean {
-  return this.selectedItemsEdit.some(i => i.item.idItem === item.idItem);
+// Función para manejar la selección de prueba en la edición
+onSeleccionarPrueba(): void {
+  if (this.selectedParticipanteIdEdit && this.selectedPruebaIdEdit) {
+    this.cargarEvaluacionesPorParticipanteYPrueba(this.selectedParticipanteIdEdit, this.selectedPruebaIdEdit);
+    console.log('Cargando evaluaciones para participante ID:', this.selectedParticipanteIdEdit, 'y prueba ID:', this.selectedPruebaIdEdit);
+  } else {
+    console.error('Debe seleccionar un participante y una prueba.');
+  }
 }
+
+// Función para cargar las evaluaciones basadas en el participante y la prueba seleccionados
+cargarEvaluacionesPorParticipanteYPrueba(participanteId: number, pruebaId: number): void {
+  console.log(`Cargando evaluaciones para participante ID: ${participanteId} y prueba ID: ${pruebaId}`);
+  this.evaluacionService.obtenerPorParticipanteYPrueba(participanteId, pruebaId).subscribe(evaluaciones => {
+    console.log('Evaluaciones obtenidas:', evaluaciones);
+    if (evaluaciones && evaluaciones.length > 0) {
+      this.evaluacionEditando = evaluaciones[0];
+      this.selectedParticipanteIdEdit = this.evaluacionEditando.idParticipante;
+      this.selectedPruebaIdEdit = this.evaluacionEditando.pruebaId;
+
+      // Obtener los ítems de la evaluación
+      this.evaluacionItemService.obtenerEvaluacionItemsPorEvaluacion(this.evaluacionEditando.idEvaluacion).subscribe(items => {
+        this.evaluacionItemsEditando = items;
+        this.selectedItemsEdit = items.map(itemEvaluacion => ({
+          item: this.items.find(item => item.idItem === itemEvaluacion.itemId)!,
+          valoracion: itemEvaluacion.valoracion
+        }));
+        console.log('Ítems seleccionados para edición:', this.selectedItemsEdit);
+      });
+
+      this.mostrarFormularioEdicion = true;
+    } else {
+      console.error('No se encontraron evaluaciones para el participante y la prueba seleccionados.');
+    }
+  });
+}
+
+
+// Función para guardar la edición de la evaluación
 guardarEdicion(): void {
   if (!this.selectedParticipanteIdEdit || this.selectedItemsEdit.length === 0) {
     alert("Debe seleccionar un participante y al menos un ítem.");
@@ -272,6 +288,8 @@ guardarEdicion(): void {
     return;
   }
 
+  console.log('Guardando edición de evaluación:', this.evaluacionEditando);
+
   // Crear el objeto de evaluación editada
   const evaluacionDTO: EvaluacionDTO = {
     participanteId: Number(this.selectedParticipanteIdEdit),
@@ -280,8 +298,12 @@ guardarEdicion(): void {
     notaFinal: this.notaFinal // Calculada previamente si es necesario
   };
 
+  console.log('Datos de la evaluación editada:', evaluacionDTO);
+
   // Actualizar la evaluación principal
   this.evaluacionService.actualizarEvaluacion(this.evaluacionEditando.idEvaluacion, evaluacionDTO).subscribe(evaluacionGuardada => {
+    console.log('Evaluación principal actualizada:', evaluacionGuardada);
+
     // Actualizar las evaluaciones de ítems
     this.selectedItemsEdit.forEach(selectedItem => {
       const evaluacionItemDTO: EvaluacionItemDTO = {
@@ -290,13 +312,16 @@ guardarEdicion(): void {
         valoracion: selectedItem.valoracion
       };
 
+      console.log('Datos de la evaluación de ítem editada:', evaluacionItemDTO);
+
       // Obtener el id de EvaluacionItem correspondiente
       const evaluacionItem = this.evaluacionItemsEditando.find(ei => ei.itemId === selectedItem.item.idItem);
 
       if (evaluacionItem) {
+        console.log('Actualizando evaluación de ítem con ID:', evaluacionItem.idEvaluacionItem);
         // Actualizar cada evaluación de ítem
         this.evaluacionItemService.actualizarEvaluacionItem(evaluacionItem.idEvaluacionItem, evaluacionItemDTO).subscribe(evaluacionItemGuardada => {
-          console.log("Evaluación de ítem actualizada exitosamente");
+          console.log("Evaluación de ítem actualizada exitosamente:", evaluacionItemGuardada);
         }, error => {
           console.error("Error al actualizar evaluación de ítem:", error);
         });

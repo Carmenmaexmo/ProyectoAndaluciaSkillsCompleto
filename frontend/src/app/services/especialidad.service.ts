@@ -2,6 +2,12 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
+export interface EspecialidadDTO {
+  idEspecialidad: number;
+  nombre: string;
+  codigo: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -28,5 +34,8 @@ export class EspecialidadService {
 
   eliminarEspecialidad(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+  obterEspecialidadPorId(id: number): Observable<EspecialidadDTO> {
+    return this.http.get<EspecialidadDTO>(`${this.apiUrl}/${id}`);
   }
 }

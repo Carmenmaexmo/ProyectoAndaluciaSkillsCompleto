@@ -78,4 +78,10 @@ public class EvaluacionItemService {
 
         return evaluacionItem;
     }
+
+    public List<EvaluacionItemDTO> obtenerEvaluacionItemsPorEvaluacion(Integer evaluacionId) {
+        Evaluacion evaluacion = evaluacionRepository.findById(evaluacionId)
+                .orElseThrow(() -> new RuntimeException("Evaluación no encontrada"));
+        return evaluacion.getEvaluacionItems().stream().map(this::convertirADTO).collect(Collectors.toList());
+    }
 }

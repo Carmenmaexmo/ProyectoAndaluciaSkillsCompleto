@@ -34,4 +34,8 @@ export class EvaluacionItemService {
   actualizarEvaluacionItem(id: number, evaluacionItem: EvaluacionItemDTO): Observable<EvaluacionItemResponseDTO> {
     return this.http.put<EvaluacionItemResponseDTO>(`${this.apiUrl}/${id}`, evaluacionItem);
   }
+
+  obtenerEvaluacionItemsPorEvaluacion(evaluacionId: number): Observable<EvaluacionItemResponseDTO[]> {
+    return this.http.get<EvaluacionItemResponseDTO[]>(`${this.apiUrl}/evaluacion/${evaluacionId}`);
+  }
 }

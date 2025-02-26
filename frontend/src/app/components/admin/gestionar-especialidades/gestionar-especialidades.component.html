@@ -1,45 +1,57 @@
 <div class="container mt-5">
-    <h2>Gestionar Especialidades</h2>
-  
-    <!-- Formulario para agregar una nueva especialidad -->
-    <h3>Agregar Nueva Especialidad</h3>
-    <div>
-      <input type="text" [(ngModel)]="nuevaEspecialidad.nombre" placeholder="Nombre" class="form-control">
-      <input type="text" [(ngModel)]="nuevaEspecialidad.codigo" placeholder="Código" class="form-control mt-2">
-      <button (click)="agregarEspecialidad()" class="btn btn-success mt-2">Agregar</button>
-    </div>
-  
-    <hr>
-  
-    <!-- Lista de especialidades con opciones para editar y eliminar -->
-    <h3>Lista de Especialidades</h3>
-    <table class="table table-striped">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Nombre</th>
-          <th>Código</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let especialidad of especialidades">
-            <td>{{ especialidad.idEspecialidad }}</td>
-          <td>{{ especialidad.nombre }}</td>
-          <td>{{ especialidad.codigo }}</td>
-          <td>
-            <button (click)="editarEspecialidad(especialidad)" class="btn btn-primary btn-sm">Editar</button>
-            <button (click)="eliminarEspecialidad(especialidad.idEspecialidad)" class="btn btn-danger btn-sm">Eliminar</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  
-    <!-- Formulario de edición -->
-    <div *ngIf="especialidadEditando">
-      <h3>Editar Especialidad</h3>
-      <input type="text" [(ngModel)]="especialidadEditando.nombre" class="form-control">
-      <input type="text" [(ngModel)]="especialidadEditando.codigo" class="form-control mt-2">
-      <button (click)="actualizarEspecialidad()" class="btn btn-warning mt-2">Actualizar</button>
-    </div>
+  <h2>Gestionar Especialidades</h2>
+
+  <!-- Formulario para agregar una nueva especialidad -->
+  <h3>Agregar Nueva Especialidad</h3>
+  <div>
+    <input type="text" [(ngModel)]="nuevaEspecialidad.nombre" (input)="validarNombre()" 
+      placeholder="Nombre" class="form-control" [ngClass]="{'is-invalid': errores.nombre}">
+    <div *ngIf="errores.nombre" class="invalid-feedback">{{ errores.nombre }}</div>
+
+    <input type="text" [(ngModel)]="nuevaEspecialidad.codigo" (input)="validarCodigo()" 
+      placeholder="Código (4 caracteres)" class="form-control mt-2" [ngClass]="{'is-invalid': errores.codigo}">
+    <div *ngIf="errores.codigo" class="invalid-feedback">{{ errores.codigo }}</div>
+
+    <button (click)="agregarEspecialidad()" class="btn btn-success mt-2" [disabled]="tieneErrores()">Agregar</button>
   </div>
+
+  <hr>
+
+  <!-- Lista de especialidades -->
+  <h3>Lista de Especialidades</h3>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nombre</th>
+        <th>Código</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let especialidad of especialidades">
+        <td>{{ especialidad.idEspecialidad }}</td>
+        <td>{{ especialidad.nombre }}</td>
+        <td>{{ especialidad.codigo }}</td>
+        <td>
+          <button (click)="editarEspecialidad(especialidad)" class="btn btn-primary btn-sm">Editar</button>
+          <button (click)="eliminarEspecialidad(especialidad.idEspecialidad)" class="btn btn-danger btn-sm">Eliminar</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Formulario de edición -->
+  <div *ngIf="especialidadEditando">
+    <h3>Editar Especialidad</h3>
+    <input type="text" [(ngModel)]="especialidadEditando.nombre" (input)="validarNombre(true)"
+      class="form-control" [ngClass]="{'is-invalid': errores.nombre}">
+    <div *ngIf="errores.nombre" class="invalid-feedback">{{ errores.nombre }}</div>
+
+    <input type="text" [(ngModel)]="especialidadEditando.codigo" (input)="validarCodigo(true)"
+      class="form-control mt-2" [ngClass]="{'is-invalid': errores.codigo}">
+    <div *ngIf="errores.codigo" class="invalid-feedback">{{ errores.codigo }}</div>
+
+    <button (click)="actualizarEspecialidad()" class="btn btn-warning mt-2" [disabled]="tieneErrores()">Actualizar</button>
+  </div>
+</div>

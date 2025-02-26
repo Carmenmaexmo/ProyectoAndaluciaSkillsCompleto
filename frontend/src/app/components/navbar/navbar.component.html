@@ -1,39 +1,43 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
-    <a class="navbar-brand" routerLink="/">Andalucia Skills</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav">
-        <!-- Menú para Admin -->
-        <li *ngIf="role === 'ADMIN'" class="nav-item">
-          <a class="nav-link" routerLinkActive ="active" routerLink="/admin/participantes">Lista de Participantes</a>
-        </li>
-        <li *ngIf="role === 'ADMIN'" class="nav-item">
-          <a class="nav-link" routerLink="/admin/especialidades">Gestionar Especialidades</a>
-        </li>
-        <li *ngIf="role === 'ADMIN'" class="nav-item">
-          <a class="nav-link" routerLink="/admin/experto">Gestionar Expertos</a>
-        </li>
-  
-        <!-- Menú para Experto -->
-        <li *ngIf="role === 'EXPERTO'" class="nav-item">
-          <a class="nav-link" routerLink="/experto/participantes">Lista de Participantes</a>
-        </li>
-        <li *ngIf="role === 'EXPERTO'" class="nav-item">
-          <a class="nav-link" routerLink="/experto/gestionar-participantes">Gestionar Participantes</a>
-        </li>
-        <li *ngIf="role === 'EXPERTO'" class="nav-item">
-          <a class="nav-link" routerLink="/experto/gestionar-puntuaciones">Gestionar Puntuaciones</a>
-        </li>
-  
-        <!-- Logout -->
-        <li class="nav-item">
-          <a class="nav-link" href="#" (click)="logout()">Logout</a>
-        </li>
-      </ul>
-    </div>
-    <div class="navbar-text">
-      Bienvenido, {{ username }}
-    </div>
-  </nav>
+  <a class="navbar-brand" routerLink="/">Andalucia Skills</a>
+  <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarNav">
+    <ul class="navbar-nav">
+      <!-- Menú para Admin -->
+      <li *ngIf="role === 'ADMIN'" class="nav-item">
+        <a class="nav-link" routerLinkActive="active" routerLink="/admin/participantes">Lista de Participantes</a>
+      </li>
+      <li *ngIf="role === 'ADMIN'" class="nav-item">
+        <a class="nav-link" routerLink="/admin/especialidades">Gestionar Especialidades</a>
+      </li>
+      <li *ngIf="role === 'ADMIN'" class="nav-item">
+        <a class="nav-link" routerLink="/admin/experto">Gestionar Expertos</a>
+      </li>
+
+      <!-- Menú para Experto -->
+      <li *ngIf="role === 'EXPERTO'" class="nav-item">
+        <a class="nav-link" routerLink="/experto/participantes">Lista de Participantes</a>
+      </li>
+      <li *ngIf="role === 'EXPERTO'" class="nav-item">
+        <a class="nav-link" routerLink="/experto/especialidades">Lista de Especialidades</a>
+      </li>
+      <li *ngIf="role === 'EXPERTO'" class="nav-item">
+        <a class="nav-link" routerLink="/experto/gestionar-participantes">Gestionar Participantes</a>
+      </li>
+      <li *ngIf="role === 'EXPERTO'" class="nav-item">
+        <a class="nav-link" routerLink="/experto/gestionar-puntuaciones">Gestionar Puntuaciones</a>
+      </li>
+
+      <!-- Login/Logout -->
+      <li class="nav-item">
+        <a class="nav-link" *ngIf="isAuthenticated" href="#" (click)="logout()">Logout</a>
+        <a class="nav-link" *ngIf="!isAuthenticated" routerLink="/login">Login</a>
+      </li>
+    </ul>
+  </div>
+  <div class="navbar-text" *ngIf="isAuthenticated">
+    Bienvenido, {{ username }}
+  </div>
+</nav>

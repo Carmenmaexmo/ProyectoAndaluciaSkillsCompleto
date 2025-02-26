@@ -2,6 +2,8 @@ package com.example.backend.controller;
 
 import com.example.backend.dto.EvaluacionItemDTO;
 import com.example.backend.service.EvaluacionItemService;
+
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,6 +27,12 @@ public class EvaluacionItemController {
     @GetMapping("/{id}")
     public Optional<EvaluacionItemDTO> obtener(@PathVariable Integer id) {
         return evaluacionItemService.obtenerPorId(id);
+    }
+
+    @GetMapping("/evaluacion/{evaluacionId}")
+    public ResponseEntity<List<EvaluacionItemDTO>> obtenerEvaluacionItemsPorEvaluacion(@PathVariable Integer evaluacionId) {
+        List<EvaluacionItemDTO> evaluacionItems = evaluacionItemService.obtenerEvaluacionItemsPorEvaluacion(evaluacionId);
+        return ResponseEntity.ok(evaluacionItems);
     }
 
     @PostMapping

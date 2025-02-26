@@ -1,0 +1,19 @@
+<div class="container mt-5">
+    <h2>Tu especialidad es: {{ especialidadUsuario }}</h2>
+  
+    <h4>Lista de Especialidades</h4>
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Código</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let especialidad of especialidades">
+          <td>{{ especialidad.nombre }}</td>
+          <td>{{ especialidad.codigo }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>

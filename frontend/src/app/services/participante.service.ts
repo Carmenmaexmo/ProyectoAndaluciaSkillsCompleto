@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { EspecialidadDTO } from './especialidad.service';
 
 // Definir la interfaz para ParticipantePuntuacion
 export interface ParticipantePuntuacion {
@@ -42,6 +43,10 @@ export class ParticipanteService {
 
   obtenerMejoresNotas(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/mejor-nota`);
+  }
+
+  obtenerParticipantes(): Observable<ParticipanteDTO[]> {
+    return this.http.get<ParticipanteDTO[]>(this.apiUrl);
   }
 
   obtenerPuntuacionesPorEspecialidad(especialidadId: number): Observable<ParticipantePuntuacion[]> {

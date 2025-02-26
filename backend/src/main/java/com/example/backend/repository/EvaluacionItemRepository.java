@@ -12,5 +12,5 @@ public interface EvaluacionItemRepository extends JpaRepository<EvaluacionItem, 
 
     //Buscar Items de evaluacion por evaluacion
     @Query("SELECT ei FROM EvaluacionItem ei WHERE ei.evaluacion.idEvaluacion = :evaluacionId")
-    List<EvaluacionItem> findByEvaluacion(Integer evaluacionId);
+    List<EvaluacionItem> findByEvaluacionId(Integer evaluacionId);
 }

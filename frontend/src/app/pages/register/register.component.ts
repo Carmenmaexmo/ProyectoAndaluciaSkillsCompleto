@@ -19,14 +19,14 @@ export class RegisterComponent implements OnInit {
     nombre: '',
     apellidos: '',
     dni: '',
-    role: 'EXPERTO',  // Establecer el rol por defecto como EXPERTO
+    role: 'EXPERTO',
     especialidadId: null
   };
 
   especialidades: any[] = [];
-
-  errorMessage: string = '';  // Mensaje de error general
-  successMessage: string = ''; // Mensaje de éxito
+  errores = { username: '', password: '', nombre: '', apellidos: '', dni: '' };
+  errorMessage: string = '';
+  successMessage: string = '';
 
   constructor(
     private authService: AuthService,
@@ -40,53 +40,93 @@ export class RegisterComponent implements OnInit {
 
   cargarEspecialidades() {
     this.especialidadService.obtenerEspecialidades().subscribe(data => {
-      console.log('🟢 Especialidades recibidas desde el backend:', data);
-  
-      if (!Array.isArray(data)) {
-        console.error("❌ ERROR: La respuesta no es un array. Verifica el backend.");
-        return;
-      }
-  
-      // Mapeamos los datos correctamente
       this.especialidades = data.map(especialidad => ({
-        idEspecialidad: especialidad.id_especialidad, // Verificar que este campo llega desde el backend
-        nombre: especialidad.nombre,
-        codigo: especialidad.codigo
+        idEspecialidad: especialidad.id_especialidad,
+        nombre: especialidad.nombre
       }));
-  
-      console.log('🔵 Especialidades procesadas para el frontend:', this.especialidades);
-    }, error => {
-      console.error('❌ Error al obtener especialidades:', error);
     });
   }
 
-  onRegister() {
-    this.errorMessage = '';  // Limpiar mensaje de error previo
-    this.successMessage = ''; // Limpiar mensaje de éxito previo
+  validarUsername() {
+    if (!this.user.username.trim()) {
+      this.errores.username = "El nombre de usuario es obligatorio.";
+      return;
+    }
 
-    console.log('Intentando registrar usuario con los siguientes datos:', this.user);
-  
-    // Realizamos la petición de registro al backend
+    this.authService.verificarUsername(this.user.username).subscribe((existe: boolean) => {
+      this.errores.username = existe ? "El nombre de usuario ya está ocupado." : "";
+    });
+  }
+
+  validarPassword() {
+    const password = this.user.password;
+    if (!password.trim()) {
+      this.errores.password = "La contraseña es obligatoria.";
+    } else if (!/(?=.*[A-Za-z])(?=.*\d)/.test(password)) {
+      this.errores.password = "Debe contener al menos una letra y un número.";
+    } else {
+      this.errores.password = "";
+    }
+  }
+
+  validarNombre() {
+    const regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
+    this.errores.nombre = regex.test(this.user.nombre) ? "" : "Solo se permiten letras y espacios.";
+  }
+
+  validarApellidos() {
+    const regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
+    this.errores.apellidos = regex.test(this.user.apellidos) ? "" : "Solo se permiten letras y espacios.";
+  }
+
+  validarDNI() {
+    const regex = /^\d{8}[A-Za-z]$/;
+    if (!regex.test(this.user.dni)) {
+      this.errores.dni = "Formato de DNI incorrecto (ej: 12345678X).";
+      return;
+    }
+
+    const letras = "TRWAGMYFPDXBNJZSQVHLCKE";
+    const numero = parseInt(this.user.dni.substring(0, 8), 10);
+    const letraCorrecta = letras[numero % 23];
+
+    if (this.user.dni.charAt(8).toUpperCase() !== letraCorrecta) {
+      this.errores.dni = "DNI inválido.";
+    } else {
+      this.errores.dni = "";
+    }
+  }
+
+  tieneErrores(): boolean {
+    return Object.values(this.errores).some(error => error !== "");
+  }
+
+  onRegister() {
+    this.errorMessage = '';
+    this.successMessage = '';
+
+    this.validarUsername();
+    this.validarPassword();
+    this.validarNombre();
+    this.validarApellidos();
+    this.validarDNI();
+
+    if (this.tieneErrores()) return;
+
     this.authService.register(this.user).subscribe(
-      
       (response: any) => {
         this.successMessage = response.message;
         setTimeout(() => {
-          this.router.navigate(['/admin/experto']); // Redirigir a gestionar expertos
+          this.router.navigate(['/admin/experto']);
         }, 2000);
       },
       (error: any) => {
-        console.log('Error recibido:', error);  // Verifica el error
-        console.log('Contenido de error.error:', error.error);  // Asegúrate de que error.error tiene lo esperado
-  
-        if (error.error && error.error.error) {
-          this.errorMessage = error.error.error;  // Asigna el mensaje de error
-          console.log('Error message asignado:', this.errorMessage);  // Verifica que errorMessage está correctamente asignado
-        } else {
-          this.errorMessage = "⚠️ Error desconocido en el registro.";  // Mensaje por defecto si no se proporciona un error específico
-          console.log('Error message por defecto:', this.errorMessage);  // Verifica que errorMessage tiene el valor por defecto
-        }
+        this.errorMessage = error.error?.error || "⚠️ Error desconocido en el registro.";
       }
     );
+  }
+
+  cancelarRegistro() {
+    this.router.navigate(['/admin/experto']);
   }
 }

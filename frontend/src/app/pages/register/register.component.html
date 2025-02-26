@@ -4,24 +4,39 @@
   <form (ngSubmit)="onRegister()">
     <div class="mb-3">
       <label class="form-label">Nombre de Usuario</label>
-      <input type="text" class="form-control" [(ngModel)]="user.username" name="username" required>
+      <input type="text" class="form-control" [(ngModel)]="user.username" name="username"
+        (blur)="validarUsername()" [ngClass]="{'is-invalid': errores.username}">
+      <div *ngIf="errores.username" class="invalid-feedback">{{ errores.username }}</div>
     </div>
+
     <div class="mb-3">
       <label class="form-label">Contraseña</label>
-      <input type="password" class="form-control" [(ngModel)]="user.password" name="password" required>
+      <input type="password" class="form-control" [(ngModel)]="user.password" name="password"
+        (input)="validarPassword()" [ngClass]="{'is-invalid': errores.password}">
+      <div *ngIf="errores.password" class="invalid-feedback">{{ errores.password }}</div>
     </div>
+
     <div class="mb-3">
       <label class="form-label">Nombre</label>
-      <input type="text" class="form-control" [(ngModel)]="user.nombre" name="nombre" required>
+      <input type="text" class="form-control" [(ngModel)]="user.nombre" name="nombre"
+        (input)="validarNombre()" [ngClass]="{'is-invalid': errores.nombre}">
+      <div *ngIf="errores.nombre" class="invalid-feedback">{{ errores.nombre }}</div>
     </div>
+
     <div class="mb-3">
       <label class="form-label">Apellidos</label>
-      <input type="text" class="form-control" [(ngModel)]="user.apellidos" name="apellidos" required>
+      <input type="text" class="form-control" [(ngModel)]="user.apellidos" name="apellidos"
+        (input)="validarApellidos()" [ngClass]="{'is-invalid': errores.apellidos}">
+      <div *ngIf="errores.apellidos" class="invalid-feedback">{{ errores.apellidos }}</div>
     </div>
+
     <div class="mb-3">
       <label class="form-label">DNI</label>
-      <input type="text" class="form-control" [(ngModel)]="user.dni" name="dni" required>
+      <input type="text" class="form-control" [(ngModel)]="user.dni" name="dni"
+        (input)="validarDNI()" [ngClass]="{'is-invalid': errores.dni}">
+      <div *ngIf="errores.dni" class="invalid-feedback">{{ errores.dni }}</div>
     </div>
+
     <div class="mb-3">
       <label class="form-label">Especialidad</label>
       <select class="form-control" [(ngModel)]="user.especialidadId" name="especialidadId" required>
@@ -30,7 +45,9 @@
         </option>
       </select>
     </div>
-    <button type="submit" class="btn btn-primary">Registrar</button>
+
+    <button type="submit" class="btn btn-primary" [disabled]="tieneErrores()">Registrar</button>
+    <button type="button" class="btn btn-secondary ms-2" (click)="cancelarRegistro()">Cancelar</button>
   </form>
 
   <div *ngIf="errorMessage" class="alert alert-danger mt-3">{{ errorMessage }}</div>

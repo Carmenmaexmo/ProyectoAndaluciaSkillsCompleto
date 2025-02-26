@@ -1,0 +1,21 @@
+<div class="container mt-5">
+    <h2>Lista de Participantes</h2>
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Apellidos</th>
+          <th>Centro</th>
+          <th>Especialidad</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let participante of participantes">
+          <td>{{ participante.nombre }}</td>
+          <td>{{ participante.apellidos }}</td>
+          <td>{{ participante.centro }}</td>
+          <td>{{ obtenerNombreEspecialidad(participante.especialidadId) }}</td>  <!-- Obtener el nombre de la especialidad -->
+        </tr>
+      </tbody>
+    </table>
+  </div>

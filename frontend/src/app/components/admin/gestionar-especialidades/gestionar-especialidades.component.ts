@@ -14,6 +14,7 @@ export class GestionarEspecialidadesComponent implements OnInit {
   especialidades: any[] = [];
   nuevaEspecialidad = { nombre: '', codigo: '' };
   especialidadEditando: any = null;
+  errores = { nombre: '', codigo: '' };
 
   constructor(private especialidadService: EspecialidadService) {}
 
@@ -24,33 +25,49 @@ export class GestionarEspecialidadesComponent implements OnInit {
  
   cargarEspecialidades() {
     this.especialidadService.obtenerEspecialidades().subscribe(data => {
-      console.log('🟢 Especialidades recibidas desde el backend:', data);
-  
       if (!Array.isArray(data)) {
-        console.error("❌ ERROR: La respuesta no es un array. Verifica el backend.");
+        console.error("❌ ERROR: La respuesta no es un array.");
         return;
       }
-  
-      // Mapeamos los datos correctamente
       this.especialidades = data.map(especialidad => ({
-        idEspecialidad: especialidad.id_especialidad, // Verificar que este campo llega desde el backend
+        idEspecialidad: especialidad.id_especialidad,
         nombre: especialidad.nombre,
         codigo: especialidad.codigo
       }));
-  
-      console.log('🔵 Especialidades procesadas para el frontend:', this.especialidades);
-    }, error => {
-      console.error('❌ Error al obtener especialidades:', error);
-    });
+    }, error => console.error('❌ Error al obtener especialidades:', error));
   }
-  
-  
+
+  validarNombre(editando = false) {
+    const nombre = editando ? this.especialidadEditando.nombre : this.nuevaEspecialidad.nombre;
+    if (!nombre.trim()) {
+      this.errores.nombre = "El nombre es obligatorio.";
+    } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(nombre)) {
+      this.errores.nombre = "El nombre solo puede contener letras y espacios.";
+    } else {
+      this.errores.nombre = "";
+    }
+  }
+
+  validarCodigo(editando = false) {
+    const codigo = editando ? this.especialidadEditando.codigo : this.nuevaEspecialidad.codigo;
+    if (!codigo.trim()) {
+      this.errores.codigo = "El código es obligatorio.";
+    } else if (codigo.length !== 4) {
+      this.errores.codigo = "El código debe tener exactamente 4 caracteres.";
+    } else {
+      this.errores.codigo = "";
+    }
+  }
+
+  tieneErrores(): boolean {
+    return !!(this.errores.nombre || this.errores.codigo);
+  }
 
   agregarEspecialidad() {
-    if (!this.nuevaEspecialidad.nombre || !this.nuevaEspecialidad.codigo) {
-      alert("Todos los campos son obligatorios");
-      return;
-    }
+    this.validarNombre();
+    this.validarCodigo();
+    if (this.tieneErrores()) return;
+
     this.especialidadService.agregarEspecialidad(this.nuevaEspecialidad).subscribe(() => {
       this.cargarEspecialidades();
       this.nuevaEspecialidad = { nombre: '', codigo: '' };
@@ -62,6 +79,10 @@ export class GestionarEspecialidadesComponent implements OnInit {
   }
 
   actualizarEspecialidad() {
+    this.validarNombre(true);
+    this.validarCodigo(true);
+    if (this.tieneErrores()) return;
+
     this.especialidadService.actualizarEspecialidad(this.especialidadEditando.idEspecialidad, this.especialidadEditando).subscribe(() => {
       this.cargarEspecialidades();
       this.especialidadEditando = null;
@@ -69,14 +90,8 @@ export class GestionarEspecialidadesComponent implements OnInit {
   }
 
   eliminarEspecialidad(id: number) {
-    console.log('ID de especialidad a eliminar:', id); // Agrega este mensaje de consola para depuración
     if (confirm('¿Seguro que deseas eliminar esta especialidad?')) {
-      this.especialidadService.eliminarEspecialidad(id).subscribe(() => {
-        this.cargarEspecialidades();
-        console.log('Especialidad eliminada:', id);
-      }, error => {
-        console.error('Error al eliminar la especialidad:', error);
-      });
+      this.especialidadService.eliminarEspecialidad(id).subscribe(() => this.cargarEspecialidades());
     }
   }
 }

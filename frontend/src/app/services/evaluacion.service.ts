@@ -10,11 +10,6 @@ export interface EvaluacionDTO {
   notaFinal: number;
 }
 
-export interface EvaluacionItemDTO {
-  itemId: number;
-  valoracion: number;
-}
-
 export interface EvaluacionResponseDTO {
   idEvaluacion: number; 
   idParticipante: number;
@@ -22,6 +17,13 @@ export interface EvaluacionResponseDTO {
   idPrueba: number;
   notaFinal: number;
   items: EvaluacionItemResponseDTO[];  // Añadir los ítems relacionados
+}
+
+export interface PruebaSimpleDTO {
+  idPrueba: number;
+  enunciado: string;
+  puntuacionMaxima: number;
+  especialidadId: number;
 }
 
 @Injectable({
@@ -42,5 +44,13 @@ export class EvaluacionService {
 
   actualizarEvaluacion(id: number, evaluacion: EvaluacionDTO): Observable<EvaluacionResponseDTO> {
     return this.http.put<EvaluacionResponseDTO>(`${this.apiUrl}/${id}`, evaluacion);
+  }
+
+  obtenerPruebasPorParticipante(participanteId: number): Observable<PruebaSimpleDTO[]> {
+    return this.http.get<PruebaSimpleDTO[]>(`${this.apiUrl}/pruebas-por-participante?participanteId=${participanteId}`);
+  }
+
+  obtenerPorParticipanteYPrueba(participanteId: number, pruebaId: number): Observable<EvaluacionResponseDTO[]> {
+    return this.http.get<EvaluacionResponseDTO[]>(`${this.apiUrl}/evaluacion-por-participante-y-prueba?participanteId=${participanteId}&pruebaId=${pruebaId}`);
   }
 }

@@ -10,9 +10,12 @@ import { GestionarExpertosComponent } from './components/admin/gestionar-experto
 import { ListarParticipantesComponent } from './components/experto/listar-participantes/listar-participantes.component';
 import { GestionarParticipantesComponent } from './components/experto/gestionar-participantes/gestionar-participantes.component';
 import { GestionarPuntuacionesComponent } from './components/experto/gestionar-puntuaciones/gestionar-puntuaciones.component';
+import { ListarEspecialidadesComponent } from './components/experto/listar-especialidades/listar-especialidades.component';
+import { ListaParticipantesAnonimoComponent } from './components/lista-participantes-anonimo/lista-participantes-anonimo.component';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'login', pathMatch: 'full' },
+  { path: '', redirectTo: 'lista-participante-anonimo', pathMatch: 'full' },
+  { path: 'lista-participante-anonimo', component: ListaParticipantesAnonimoComponent, pathMatch: 'full' },
   { path: 'login', component: LoginComponent, pathMatch: 'full' },
   { path: 'register', component: RegisterComponent },
   { path: 'navbar', component: NavbarComponent, canActivate: [AuthGuard] },
@@ -30,7 +33,8 @@ export const routes: Routes = [
       { path: '', redirectTo: 'participantes', pathMatch: 'full' },
       { path: 'participantes', component: ListarParticipantesComponent },
       { path: 'gestionar-participantes', component: GestionarParticipantesComponent },
-      { path: 'gestionar-puntuaciones', component: GestionarPuntuacionesComponent }
+      { path: 'gestionar-puntuaciones', component: GestionarPuntuacionesComponent },
+      { path: 'especialidades', component: ListarEspecialidadesComponent }
     ]
   }
 ];

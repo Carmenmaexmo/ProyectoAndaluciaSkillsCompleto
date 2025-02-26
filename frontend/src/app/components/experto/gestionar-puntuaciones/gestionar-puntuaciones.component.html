@@ -16,7 +16,12 @@
       <button class="btn btn-warning" (click)="mostrarFormularioEvaluacion = !mostrarFormularioEvaluacion">
         {{ mostrarFormularioEvaluacion ? 'Cancelar Evaluación' : 'Evaluar' }}
       </button>
+        <!-- Botón para actualizar evaluación -->
+<button class="btn btn-warning ms-2" (click)="mostrarFormularioEdicion = !mostrarFormularioEdicion">
+  {{mostrarFormularioEdicion ? 'Cancelar Edición' : 'Editar Evaluación' }}
+</button>
     </div>
+    
   
     <!-- Formulario para Crear una Nueva Prueba -->
     <div *ngIf="mostrarFormulario" class="card p-3 mb-3">
@@ -101,72 +106,46 @@
       </tbody>
     </table>
     
-  <!-- Botón para Guardar la Evaluación -->
-<button class="btn btn-success" (click)="guardarEvaluacion()">Guardar Evaluación</button>
+    <!-- Botón para Guardar la Evaluación -->
+    <button class="btn btn-success" (click)="guardarEvaluacion()">Guardar Evaluación</button>
+  </div>
+  
+</div>
+<div *ngIf="mostrarFormularioEdicion">
+<!-- Formulario de edición de evaluación -->
+<div *ngIf="mostrarFormularioEdicion">
+  <h3>Actualizar Evaluación</h3>
+
+  <!-- Selector de participante -->
+  <div>
+    <label for="participante">Seleccionar Participante:</label>
+    <select id="participante" [(ngModel)]="selectedParticipanteIdEdit" (change)="onSeleccionarParticipante()">
+      <option *ngFor="let p of participantes" [value]="p.idParticipante">{{ p.nombre }} {{ p.apellidos }}</option>
+    </select>
   </div>
 
-  <!-- Botón para Editar Evaluación -->
-<div class="text-end mb-3">
-    <button class="btn btn-info" (click)="mostrarFormularioEdicion = !mostrarFormularioEdicion">
-      {{ mostrarFormularioEdicion ? 'Cancelar Edición' : 'Editar Evaluación' }}
-    </button>
+  <!-- Selector de prueba -->
+  <div>
+    <label for="prueba">Seleccionar Prueba:</label>
+    <select id="prueba" [(ngModel)]="selectedPruebaIdEdit" (change)="onSeleccionarPrueba()">
+      <option *ngFor="let prueba of pruebasPorEspecialidadEdit" [value]="prueba.idPrueba">{{ prueba.enunciado }}</option>
+    </select>
   </div>
-  
-  <!-- Formulario para Editar Evaluación -->
-<div *ngIf="mostrarFormularioEdicion" class="card p-3 mb-3">
-    <h4>Editar Evaluación</h4>
-    <!-- Seleccionar Participante -->
-    <div class="mb-2">
-      <label for="participanteEdit" class="form-label">Seleccionar Participante:</label>
-      <select id="participanteEdit" class="form-control" [(ngModel)]="selectedParticipanteIdEdit" required>
-        <option *ngFor="let p of participantes" [value]="p.idParticipante">{{ p.nombre }} {{ p.apellidos }}</option>
-      </select>
-    </div>
-    
-    <!-- Seleccionar Prueba -->
-    <div class="mb-2">
-      <label for="pruebaEdit" class="form-label">Seleccionar Prueba:</label>
-      <select id="pruebaEdit" class="form-control" [(ngModel)]="selectedPruebaIdEdit" required>
-        <option *ngFor="let prueba of pruebasPorEspecialidad" [value]="prueba.idPrueba">{{ prueba.enunciado }} ({{ prueba.puntuacionMaxima }})</option>
-      </select>
-    </div>
-  
-    <!-- Mostrar Ítems con Valoraciones Existentes -->
-    <div *ngIf="selectedParticipanteIdEdit && selectedPruebaIdEdit" class="mb-3">
-      <h5>Seleccionar Ítems para Editar:</h5>
-      <div *ngFor="let item of items">
-        <input type="checkbox" [id]="'itemEdit-' + item.idItem" (change)="seleccionarItemEditar(item, $event)" [checked]="isItemSelected(item)" />
-        <label [for]="'itemEdit-' + item.idItem">{{ item.descripcion }}</label>
-      </div>
-    </div>
-    
-    <!-- Mostrar los Ítems Seleccionados en Tabla para Edición -->
-    <div *ngIf="selectedItemsEdit.length > 0">
-      <h5>Ítems Seleccionados</h5>
-      <table class="table table-bordered">
-        <thead>
-          <tr>
-            <th>Ítem</th>
-            <th>Peso</th>
-            <th>Valoración</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let selectedItem of selectedItemsEdit">
-            <td>{{ selectedItem.item.descripcion }}</td>
-            <td>{{ selectedItem.item.peso }}</td>
-            <td>
-              <input type="number" [(ngModel)]="selectedItem.valoracion" [max]="selectedItem.item.peso" min="0" class="form-control" />
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <!-- Botón para Guardar la Edición -->
-      <button class="btn btn-success" (click)="guardarEdicion()">Guardar Edición</button>
+
+  <!-- Lista de ítems con valoraciones -->
+  <div *ngIf="selectedItemsEdit.length > 0">
+    <h4>Ítems de la Prueba</h4>
+    <div *ngFor="let selectedItem of selectedItemsEdit">
+      <label>{{ selectedItem.item.descripcion }} (Peso: {{ selectedItem.item.peso }}):</label>
+      <input type="number" [(ngModel)]="selectedItem.valoracion" />
     </div>
   </div>
 
-    </div>
+  <!-- Botón para guardar la edición -->
+  <button (click)="guardarEdicion()">Guardar Edición</button>
+
+</div>
+</div>
   
     <h5>Lista de Pruebas e Item Evaluaciones</h5>
     <!-- Tabla de Pruebas y Evaluaciones -->
@@ -196,5 +175,5 @@
         </tr>
       </tbody>
     </table>
-  </div>
+  
   

@@ -18,6 +18,8 @@ public interface EvaluacionRepository extends JpaRepository<Evaluacion, Integer>
     @Query("SELECT e FROM Evaluacion e WHERE e.usuario.idUser = :userId")
     List<Evaluacion> findByUsuario(Integer userId);
 
-    
+    //Buscar evaluacion por participante y prueba
+    @Query("SELECT e FROM Evaluacion e WHERE e.participante.idParticipante = :participanteId AND e.prueba.idPrueba = :pruebaId")
+    List<Evaluacion> findByParticipanteAndPrueba(Integer participanteId, Integer pruebaId);
 
 }

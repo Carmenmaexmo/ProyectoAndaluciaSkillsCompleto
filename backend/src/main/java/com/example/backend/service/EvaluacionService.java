@@ -1,6 +1,7 @@
 package com.example.backend.service;
 
 import com.example.backend.dto.EvaluacionDTO;
+import com.example.backend.dto.PruebaDTO;
 import com.example.backend.model.Evaluacion;
 import com.example.backend.model.Participante;
 import com.example.backend.model.Prueba;
@@ -32,6 +33,19 @@ public class EvaluacionService {
 
     public List<EvaluacionDTO> obtenerTodas() {
         return evaluacionRepository.findAll().stream().map(this::convertirADTO).collect(Collectors.toList());
+    }
+
+    public List<PruebaDTO> obtenerPruebasPorParticipante(Integer participanteId) {
+        List<Evaluacion> evaluaciones = evaluacionRepository.findByParticipante(participanteId);
+        return evaluaciones.stream().map(evaluacion -> {
+            Prueba prueba = evaluacion.getPrueba();
+            PruebaDTO pruebaDTO = new PruebaDTO();
+            pruebaDTO.setIdPrueba(prueba.getIdPrueba());
+            pruebaDTO.setEnunciado(prueba.getEnunciado());
+            pruebaDTO.setPuntuacionMaxima(prueba.getPuntuacionMaxima());
+            pruebaDTO.setEspecialidadId(prueba.getEspecialidad().getIdEspecialidad());
+            return pruebaDTO;
+        }).collect(Collectors.toList());
     }
 
     public Optional<EvaluacionDTO> obtenerPorId(Integer id) {
@@ -87,4 +101,13 @@ public class EvaluacionService {
 
         return evaluacion;
     }
+
+    public Optional<EvaluacionDTO> obtenerPorParticipanteYPrueba(Integer participanteId, Integer pruebaId) {
+        List<Evaluacion> evaluaciones = evaluacionRepository.findByParticipanteAndPrueba(participanteId, pruebaId);
+        if (evaluaciones.isEmpty()) {
+            return Optional.empty();
+        }
+        return evaluaciones.stream().findFirst().map(this::convertirADTO);
+    }
+
 }
