@@ -4,10 +4,10 @@ import com.example.backend.dto.UserLoginDTO;
 import com.example.backend.dto.UserRegisterDTO;
 import com.example.backend.service.UserService;
 import com.example.backend.config.JwtUtil;
-
-import java.util.HashMap;
-import java.util.Map;
-
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -18,8 +18,12 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
-@CrossOrigin(origins = "http://localhost:4200")  // Permite que la aplicación front-end acceda a este endpoint
+@CrossOrigin(origins = "http://localhost:4200")
+@Tag(name = "Autenticación", description = "Endpoints para autenticación de usuarios")
 public class AuthController {
 
     @Autowired
@@ -32,6 +36,11 @@ public class AuthController {
     private JwtUtil jwtUtil;
 
     @PostMapping("/register")
+    @Operation(summary = "Registrar un nuevo usuario")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Usuario registrado exitosamente"),
+        @ApiResponse(responseCode = "400", description = "Error en el registro")
+    })
     public ResponseEntity<Map<String, String>> register(@RequestBody UserRegisterDTO userRegisterDTO) {
         Map<String, String> response = new HashMap<>();
         try {
@@ -41,16 +50,15 @@ public class AuthController {
         } catch (DataIntegrityViolationException e) {
             response.put("error", "⚠️ El nombre de usuario ya está registrado.");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-        } catch (RuntimeException e) {
-            response.put("error", e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-        } catch (Exception e) {
-            response.put("error", "⚠️ Error en el registro.");
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
 
     @PostMapping("/login")
+    @Operation(summary = "Iniciar sesión y obtener token JWT")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Autenticación exitosa"),
+        @ApiResponse(responseCode = "401", description = "Credenciales incorrectas")
+    })
     public ResponseEntity<Map<String, String>> login(@RequestBody UserLoginDTO userLoginDTO) {
         try {
             authenticationManager.authenticate(
@@ -58,22 +66,12 @@ public class AuthController {
             );
         } catch (BadCredentialsException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Usuario o contraseña incorrectos."));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Error en el login."));
         }
 
         final UserDetails userDetails = userService.loadUserByUsername(userLoginDTO.getUsername());
-        final String role = userService.getUserRole(userLoginDTO.getUsername());
-        final Integer especialidadId = userService.getUserEspecialidadId(userLoginDTO.getUsername());
         final Integer userId = userService.getUserIdByUsername(userLoginDTO.getUsername());
-        
-        // Log para verificar que el userId se está obteniendo correctamente
-        System.out.println("Obtenido userId: " + userId);
-        
-        final String jwt = jwtUtil.generateToken(userDetails, role, especialidadId, userId);
+        final String jwt = jwtUtil.generateToken(userDetails, userService.getUserRole(userLoginDTO.getUsername()), userService.getUserEspecialidadId(userLoginDTO.getUsername()), userId);
 
-        Map<String, String> response = new HashMap<>();
-        response.put("token", jwt);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(Map.of("token", jwt));
     }
 }

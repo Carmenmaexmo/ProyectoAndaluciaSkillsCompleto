@@ -32,7 +32,7 @@
       </div>
       <div class="mb-2">
         <label for="puntuacionMaxima" class="form-label">Puntuación Máxima:</label>
-        <input type="number" id="puntuacionMaxima" class="form-control" [(ngModel)]="nuevaPrueba.puntuacion_maxima" required>
+        <input type="number" id="puntuacionMaxima" class="form-control" [(ngModel)]="nuevaPrueba.puntuacion_maxima" readonly value="10" >
       </div>
       <button class="btn btn-success" (click)="crearPrueba()">Guardar Prueba</button>
     </div>
@@ -40,20 +40,34 @@
     <!-- Formulario para Crear un Nuevo Ítem -->
     <div *ngIf="mostrarFormularioItem" class="card p-3 mb-3">
       <h4>Crear Nuevo Ítem</h4>
+    
+      <!-- Descripción del ítem -->
       <div class="mb-2">
         <label for="descripcionItem" class="form-label">Descripción:</label>
         <input type="text" id="descripcionItem" class="form-control" [(ngModel)]="nuevoItem.descripcion" required>
       </div>
+    
+       <!-- Peso del ítem -->
       <div class="mb-2">
         <label for="pesoItem" class="form-label">Peso:</label>
-        <input type="number" id="pesoItem" class="form-control" [(ngModel)]="nuevoItem.peso" required>
+        <input type="number" id="pesoItem" class="form-control" [(ngModel)]="nuevoItem.peso" (ngModelChange)="actualizarGradosConsecucion()" required min="1" max="10">
       </div>
+
+        <!-- Mensaje de error para el peso -->
+        <div *ngIf="pesoError" class="alert alert-danger">
+          El peso debe ser entre 1 y 10.
+        </div>
+    
+      <!-- Grados de consecución (solo lectura) -->
       <div class="mb-2">
         <label for="gradosConsecucionItem" class="form-label">Grados de Consecución:</label>
-        <input type="number" id="gradosConsecucionItem" class="form-control" [(ngModel)]="nuevoItem.gradosConsecucion" required>
+        <input type="number" id="gradosConsecucionItem" class="form-control" [value]="nuevoItem.gradosConsecucion" readonly>
       </div>
+    
+      <!-- Botón para guardar el ítem -->
       <button class="btn btn-success" (click)="crearItem()">Guardar Ítem</button>
     </div>
+    
   
     <!-- Formulario para Evaluar -->
     <div *ngIf="mostrarFormularioEvaluacion" class="card p-3 mb-3">
@@ -100,17 +114,37 @@
           <td>{{ selectedItem.item.descripcion }}</td>
           <td>{{ selectedItem.item.peso }}</td>
           <td>
-            <input type="number" [(ngModel)]="selectedItem.valoracion" [max]="selectedItem.item.peso" min="0" class="form-control" />
+            <input 
+            type="number" 
+            [(ngModel)]="selectedItem.valoracion"
+            [max]="selectedItem.item.peso" 
+            min="0" 
+            class="form-control"
+            (ngModelChange)="validarValoracion(selectedItem)"
+          />
+            <!-- Mensaje de error individual -->
+        <div *ngIf="selectedItem.valoracion === null" class="text-danger">
+          La valoración debe estar entre 0 y {{ selectedItem.item.peso }}.
+        </div>
           </td>
         </tr>
       </tbody>
     </table>
-    
+   <!-- Mensaje de error global -->
+  <div *ngIf="mensajeError" class="text-danger">
+    {{ mensajeError }}
+  </div>
+
+    <!-- Botón para Generar el PDF -->
+    <button class="btn btn-success" (click)="generarPDF()">Generar PDF</button>
     <!-- Botón para Guardar la Evaluación -->
-    <button class="btn btn-success" (click)="guardarEvaluacion()">Guardar Evaluación</button>
+    <button class="btn btn-success" (click)="guardarEvaluacion()" [disabled]="!esEvaluacionValida()">
+      Guardar Evaluación
+    </button>
   </div>
   
 </div>
+
 <div *ngIf="mostrarFormularioEdicion">
 <!-- Formulario de edición de evaluación -->
 <div *ngIf="mostrarFormularioEdicion">

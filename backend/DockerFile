@@ -5,7 +5,7 @@ FROM openjdk:17-jdk-slim
 WORKDIR /app
 
 # Copiamos el archivo JAR del backend
-COPY target/andaluciaskills-0.0.1-SNAPSHOT.jar app.jar
+COPY target/backend-0.0.1-SNAPSHOT.jar app.jar
 
 # Exponemos el puerto 8080
 EXPOSE 8080

@@ -11,6 +11,7 @@ export interface EvaluacionDTO {
 }
 
 export interface EvaluacionResponseDTO {
+  pruebaId: number;
   idEvaluacion: number; 
   idParticipante: number;
   idUsuario: number;

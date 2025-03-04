@@ -4,9 +4,11 @@ import { ItemService, ItemDTO, CrearItemDTO } from '../../../services/item.servi
 import { ParticipanteService, ParticipanteDTO } from '../../../services/participante.service';
 import { EvaluacionItemService, EvaluacionItemDTO, EvaluacionItemResponseDTO } from '../../../services/evaluacion-item.service';
 import { EvaluacionService, EvaluacionDTO, EvaluacionResponseDTO, PruebaSimpleDTO } from '../../../services/evaluacion.service';
+import { PdfService,  } from '../../../services/pdf.service';
 import { AuthService } from '../../../services/auth.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+
 
 @Component({
   selector: 'app-gestionar-puntuaciones',
@@ -33,17 +35,24 @@ export class GestionarPuntuacionesComponent implements OnInit {
   evaluacionItemsEditando: EvaluacionItemResponseDTO[] = [];  
   evaluacionEditando: EvaluacionResponseDTO | null = null;  // Evaluación para edición
 
+  nombreParticipante: string = '';  
+  apellidoParticipante: string = ''; 
+  enunciadoPrueba: string = ''; 
+  
+
   // Mensaje que se mostrará al usuario
   mensaje: string = '';
   mensajeTipo: string = '';  // Puede ser 'success' o 'error'
+  pesoError: boolean = false;
+  mensajeError: string = '';  // Mensaje de error específico
 
   mostrarFormulario: boolean = false;  // Controla la visibilidad del formulario de prueba
   mostrarFormularioItem: boolean = false; // Controla la visibilidad del formulario de ítem
   mostrarFormularioEvaluacion: boolean = false;
   mostrarFormularioEdicion: boolean = false; 
 
-  nuevaPrueba: CrearPruebaDTO = { enunciado: '', puntuacion_maxima: 0, especialidadId: 0 }; // Formulario para crear una nueva prueba
-  nuevoItem: CrearItemDTO = { descripcion: '', peso: 0, gradosConsecucion: 0 }; // Formulario para crear un ítem
+  nuevaPrueba: CrearPruebaDTO = { enunciado: '', puntuacion_maxima: 10, especialidadId: 0 }; // Formulario para crear una nueva prueba
+  nuevoItem: CrearItemDTO = { descripcion: '', peso: 1, gradosConsecucion: 0 }; // Formulario para crear un ítem
 
   constructor(
     private pruebaService: PruebaService,
@@ -51,7 +60,8 @@ export class GestionarPuntuacionesComponent implements OnInit {
     private itemService: ItemService,  // Usamos ItemService
     private evaluacionItemService: EvaluacionItemService,
     private evaluacionService: EvaluacionService,
-    private authService: AuthService
+    private authService: AuthService,
+    private pdfService: PdfService
   ) {}
 
   ngOnInit(): void {
@@ -99,7 +109,7 @@ export class GestionarPuntuacionesComponent implements OnInit {
     this.pruebaService.agregarPrueba(this.nuevaPrueba).subscribe(
       (prueba) => {
         this.pruebas.push(prueba);
-        this.nuevaPrueba = { enunciado: '', puntuacion_maxima: 0, especialidadId: especialidadId };
+        this.nuevaPrueba = { enunciado: '', puntuacion_maxima: 10, especialidadId: especialidadId };
         this.mostrarFormulario = false;
         this.mensaje = 'Prueba agregada exitosamente!';
         this.mensajeTipo = 'success';
@@ -114,18 +124,45 @@ export class GestionarPuntuacionesComponent implements OnInit {
     );
   }
 
+ // Actualizar los grados de consecución basado en el peso (y asegurarse de que esté dentro del rango 1-10)
+ actualizarGradosConsecucion(): void {
+  // Validar que el peso esté dentro del rango permitido (1 a 10)
+  if (this.nuevoItem.peso < 1) {
+    this.nuevoItem.peso = 1;  // Si es menor que 1, lo fijamos a 1
+    this.pesoError = true; // Activar el error si el peso es menor que 1
+  } else if (this.nuevoItem.peso > 10) {
+    this.nuevoItem.peso = 10;  // Si es mayor que 10, lo fijamos a 10
+    this.pesoError = true; // Activar el error si el peso es mayor que 10
+  } else {
+    this.pesoError = false; // Si está dentro del rango, no mostrar error
+  }
+
+  // Ahora actualizamos los grados de consecución
+  this.nuevoItem.gradosConsecucion = this.nuevoItem.peso ? this.nuevoItem.peso * 10 : 0;
+}
+
+
   // Crear un nuevo ítem
   crearItem(): void {
-    if (!this.nuevoItem.descripcion || this.nuevoItem.peso <= 0) {
+     // Verificar si el peso es válido
+  if (this.pesoError) {
+    // Si hay un error con el peso, no continuamos
+    return;
+  }
+    if (!this.nuevoItem.descripcion || this.nuevoItem.peso < 1 || this.nuevoItem.peso > 10) {
       alert("Debe completar todos los campos del ítem.");
       return;
     }
-    console.log('Creando ítem:', this.nuevoItem);
 
+    // Primero, actualizar los grados de consecución
+    this.actualizarGradosConsecucion();
+
+    console.log('Creando ítem:', this.nuevoItem);
+    
     this.itemService.agregarItem(this.nuevoItem).subscribe(
       (item) => {
         this.items.push(item);  // Agregar el nuevo ítem a la lista de ítems
-        this.nuevoItem = { descripcion: '', peso: 0, gradosConsecucion: 0 };  // Reiniciar el formulario
+        this.nuevoItem = { descripcion: '', peso: 1, gradosConsecucion: 0 };  // Reiniciar el formulario
         this.mostrarFormularioItem = false;  // Ocultar el formulario después de guardar
         this.mensaje = 'Ítem agregado exitosamente!';
         this.mensajeTipo = 'success';
@@ -171,10 +208,35 @@ export class GestionarPuntuacionesComponent implements OnInit {
   
     console.log('Nota Final Calculada:', this.notaFinal);
   }  
-  
+
+ // Método para validar la valoración de cada ítem
+ validarValoracion(selectedItem: any): void {
+  if (selectedItem.valoracion === null || isNaN(selectedItem.valoracion)) {
+    selectedItem.valoracion = null; // Si el valor no es un número, lo deja vacío
+    return;
+  }
+  if (selectedItem.valoracion < 0 || selectedItem.valoracion > selectedItem.item.peso) {
+    selectedItem.valoracion = null; // Si está fuera del rango, lo deja vacío
+  }
+}
+
+// Verifica si todas las valoraciones son válidas antes de permitir guardar
+esEvaluacionValida(): boolean {
+  return this.selectedItems.every(
+    (item) => item.valoracion !== null && item.valoracion >= 0 && item.valoracion <= item.item.peso
+  );
+}
 
  // Función para guardar la evaluación principal y las evaluaciones de los ítems seleccionados
 guardarEvaluacion(): void {
+  this.mensajeError = '';
+
+    if (!this.esEvaluacionValida()) {
+      this.mensajeError = 'Hay valoraciones fuera del rango permitido. Corríjalas antes de continuar.';
+      return;
+    }
+
+
   if (!this.selectedParticipanteId || this.selectedItems.length === 0) {
     alert("Debe seleccionar un participante y al menos un ítem.");
     return;
@@ -338,4 +400,86 @@ guardarEdicion(): void {
     setTimeout(() => this.mensaje = '', 3000);
   });
 }
+generarPDF(): void {
+  if (!this.selectedParticipanteId || !this.selectedPruebaId || this.selectedItems.length === 0) {
+    alert("Debe seleccionar un participante, una prueba y al menos un ítem.");
+    return;
+  }
+
+  // Recalcular la nota final basado en los ítems seleccionados
+  this.calcularNotaFinal();
+
+  // Convertir los IDs a número (ya deberían ser number gracias a [ngValue])
+  const idParticipante = Number(this.selectedParticipanteId);
+  const idPrueba = Number(this.selectedPruebaId);
+
+  // Buscar el participante en la lista usando la propiedad idParticipante
+  const participanteSeleccionado = this.participantes.find(
+    p => Number(p.idParticipante) === idParticipante
+  );
+  if (participanteSeleccionado) {
+    this.nombreParticipante = participanteSeleccionado.nombre;
+    this.apellidoParticipante = participanteSeleccionado.apellidos;
+  } else {
+    console.error('Participante no encontrado');
+    return;
+  }
+
+  // Buscar la prueba en la lista de pruebas usando la propiedad idPrueba
+  const pruebaSeleccionada = this.pruebasPorEspecialidad.find(
+    p => Number(p.idPrueba) === idPrueba
+  );
+  if (pruebaSeleccionada) {
+    this.enunciadoPrueba = pruebaSeleccionada.enunciado;
+  } else {
+    console.error('Prueba no encontrada');
+    return;
+  }
+
+  // Construir el objeto con los datos que espera el backend,
+  // usando los nombres de propiedades que definiste en tu EvaluacionRequest
+  const datosEvaluacion = {
+    participanteId: idParticipante,
+    participante: this.nombreParticipante, // Nombre del participante
+    apellidos: this.apellidoParticipante,    // Apellidos
+    pruebaId: idPrueba,
+    prueba: this.enunciadoPrueba,              // Enunciado de la prueba
+    items: this.selectedItems.map(item => ({
+      itemId: item.item.idItem,
+      descripcion: item.item.descripcion,
+      peso: item.item.peso,
+      valoracion: item.valoracion
+    })),
+    notaFinal: this.notaFinal
+  };
+
+  console.log("Enviando datos al backend para generar PDF:", datosEvaluacion);
+
+  // Llamar al servicio para generar el PDF
+  this.pdfService.generarPDF(datosEvaluacion).subscribe(
+    (response: Blob) => {
+      const blob = new Blob([response], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+
+      // Crear un enlace para descargar el archivo
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Evaluacion_${idParticipante}_${idPrueba}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+
+      // Limpiar el objeto URL después de la descarga
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      console.log("PDF descargado exitosamente.");
+    },
+    (error) => {
+      console.error("Error al generar el PDF:", error);
+      alert("Hubo un problema al generar el PDF. Inténtelo de nuevo.");
+    }
+  );
+}
+
+
 }
